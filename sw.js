@@ -1,12 +1,13 @@
 // Néstor Premium · service worker
 // Guarda l'app a la memòria cau perquè funcioni sense connexió. Google Maps sí que necessita dades.
 // Si canvies algun fitxer, puja el número de VERSION perquè els mòbils agafin la versió nova.
-const VERSION = "np-v7";
+const VERSION = "np-v9";
 const SHELL = [
   "./",
   "index.html",
   "styles.css",
   "app.js",
+  "config.js",
   "data.js",
   "manifest.webmanifest",
   "icons/icon-192.png",
@@ -14,9 +15,11 @@ const SHELL = [
   "icons/apple-touch-icon.png",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js",
 ];
 // Fonts, Leaflet i les rajoles del mapa que ja s'han vist també es guarden
-const EXTERNAL = ["fonts.googleapis.com", "fonts.gstatic.com", "unpkg.com"];
+// (les crides a Supabase no es guarden mai: sempre van a la xarxa)
+const EXTERNAL = ["fonts.googleapis.com", "fonts.gstatic.com", "unpkg.com", "cdn.jsdelivr.net"];
 const isExternal = (host) => EXTERNAL.includes(host) || host === "tile.openstreetmap.org";
 
 self.addEventListener("install", (e) => {

@@ -4,6 +4,7 @@
 
   const D = window.DATA;
   const T = D.texts;
+  T.roles = T.roles || {}; // per si arriba un data.js d'una versió anterior
   const STOPS = D.stops;
   const QUOTAS = D.quotas;
   const TOTAL = QUOTAS.length;
@@ -38,6 +39,105 @@
   let justPaid = false; // el segell només cau en el moment de pagar
 
   const save = () => store.save(state);
+
+  // ---------- Sincronització (Supabase) i rols
+  // Sense config.js, el joc va en un sol mòbil com sempre. Amb config.js, tots els mòbils comparteixen l'estat:
+  // el de la Clàudia avança la ruta i només els organitzadors (amb PIN) poden posar el veredicte.
+  const CFG = window.NP_CONFIG || {};
+  const ROLE_KEY = "nestor-premium-role";
+  let role = (() => { try { return JSON.parse(localStorage.getItem(ROLE_KEY)) || {}; } catch (e) { return {}; } })();
+  const saveRole = () => { try { localStorage.setItem(ROLE_KEY, JSON.stringify(role)); } catch (e) { /* res */ } };
+  const PROGRESS = ["started", "idx", "stage", "done", "choice"];
+  const sync = { on: false, db: null, online: true, busy: false, progress: false, tools: new Set() };
+  const isOrg = () => sync.on && !!role.pin;
+  const leads = () => !isOrg(); // qui avança la ruta: la Clàudia (o tothom si no hi ha sincronització)
+  const judges = () => !sync.on || isOrg(); // qui pot posar "Quota pagada" i "Pagament rebutjat"
+
+  function pushProgress() {
+    if (!sync.on) return;
+    sync.progress = true;
+    flush();
+  }
+
+  function pushTool(n) {
+    if (!sync.on) return;
+    sync.tools.add(String(n));
+    flush();
+  }
+
+  async function flush() {
+    if (!sync.on || sync.busy) return;
+    sync.busy = true;
+    try {
+      while (sync.progress || sync.tools.size) {
+        if (sync.progress) {
+          sync.progress = false;
+          const patch = {};
+          PROGRESS.forEach((k) => { patch[k] = state[k]; });
+          const { error } = await sync.db.rpc("np_progress", { patch });
+          if (error) { sync.progress = true; throw error; }
+        }
+        for (const n of [...sync.tools]) {
+          sync.tools.delete(n);
+          const { error } = await sync.db.rpc("np_tool", { n, value: state.tools[n] || {} });
+          if (error) { sync.tools.add(n); throw error; }
+        }
+      }
+      setOnline(true);
+    } catch (e) {
+      setOnline(false);
+    } finally {
+      sync.busy = false;
+    }
+  }
+
+  function setOnline(v) {
+    if (sync.online === v) return;
+    sync.online = v;
+    renderTopbar();
+  }
+
+  // Arriba l'estat del servidor: el que aquest mòbil encara no ha enviat es manté
+  function applyRemote(remote) {
+    const before = state;
+    const next = Object.assign(fresh(), remote || {});
+    next.paid = next.paid || {};
+    next.tools = next.tools || {};
+    next.choice = next.choice || {};
+    if (sync.progress) PROGRESS.forEach((k) => { next[k] = before[k]; });
+    sync.tools.forEach((n) => { next.tools[n] = before.tools[n]; });
+    Object.entries(before.tools).forEach(([n, t]) => { if (t && t.run && timer) next.tools[n] = t; });
+    const s = STOPS[next.idx];
+    if (s && s.quota && next.paid[s.quota] && !before.paid[s.quota]) justPaid = true;
+    const moved = next.idx !== before.idx || next.stage !== before.stage;
+    state = next;
+    save();
+    if (moved) { ui.answer = false; ui.roscoAnswer = false; }
+    render();
+    if (moved && tab === "route") window.scrollTo(0, 0);
+  }
+
+  async function pull() {
+    const { data, error } = await sync.db.from("np_game").select("state").eq("id", "nestor").single();
+    if (error) { setOnline(false); return; }
+    setOnline(true);
+    applyRemote(data.state);
+  }
+
+  function startSync() {
+    if (!CFG.supabaseUrl || !CFG.supabaseKey || !window.supabase) return;
+    sync.on = true;
+    sync.db = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey);
+    sync.db.channel("np-game")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "np_game", filter: "id=eq.nestor" },
+        (p) => { setOnline(true); applyRemote(p.new.state); })
+      .subscribe((status) => { if (status === "SUBSCRIBED") pull(); });
+    pull();
+    // En tornar de la pantalla apagada o recuperar la xarxa, es posa al dia i envia el que faltava
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) { flush(); pull(); } });
+    window.addEventListener("online", () => { flush(); pull(); });
+    setInterval(() => { if (sync.progress || sync.tools.size) flush(); }, 15000);
+  }
 
   // ---------- Utilitats
   const $ = (sel) => document.querySelector(sel);
@@ -79,7 +179,7 @@
     const segs = QUOTAS.map((q) => `<i class="seg${state.paid[q.n] ? " seg--on" : ""}"></i>`).join("");
     $("#topbar").innerHTML = `
       <div class="topbar__row">
-        <span class="topbar__brand">${esc(T.appName)}</span>
+        <span class="topbar__brand">${esc(T.appName)}${isOrg() ? `<span class="badge mono">${esc(T.roles.badge)}</span>` : ""}${sync.on && !sync.online ? `<span class="badge badge--off mono">${esc(T.roles.offline)}</span>` : ""}</span>
         <span class="topbar__plan${renewed ? " topbar__plan--ok" : ""}">
           ${renewed ? "" : `<span class="topbar__trial">${esc(T.topbar.trial)}</span>`}
           <span class="topbar__count mono">${esc(countdown())}</span>
@@ -130,7 +230,7 @@
   // ---------- Eines de les proves (l'estat de cada una es desa a state.tools[n])
   const TT = T.tools;
   const R = T.rosco;
-  const ui = { answer: false, roscoAnswer: false, mapDay: null, confirmReset: false }; // coses de pantalla que no cal desar
+  const ui = { answer: false, roscoAnswer: false, mapDay: null, confirmReset: false, pinWrong: false }; // coses de pantalla que no cal desar
   const curQuota = () => quota(STOPS[state.idx].quota);
   const tool = (q, init) => state.tools[q.n] || (state.tools[q.n] = init());
   const num = (x) => x.toLocaleString("ca-ES", { maximumFractionDigits: 1 });
@@ -242,7 +342,7 @@
     timer = null;
   }
 
-  function startTimer(t) {
+  function startTimer(t, n) {
     stopTimer();
     t.run = true;
     let last = Date.now();
@@ -254,6 +354,7 @@
       t.time = Math.max(0, t.time - passed);
       if (t.time === 0) { t.run = false; stopTimer(); }
       save();
+      if (t.time % 5 === 0 || t.time === 0) pushTool(n);
       const el = $("#rosco-time");
       if (t.time === 0) refreshTool();
       else if (el) el.textContent = mmss(t.time);
@@ -312,8 +413,11 @@
 
   function refreshTool() {
     save();
+    const q = curQuota();
+    if (!q) return;
+    pushTool(q.n);
     const el = $(".tool");
-    if (el) el.innerHTML = toolView(curQuota());
+    if (el) el.innerHTML = toolView(q);
   }
 
   const toolActions = {
@@ -347,7 +451,7 @@
     },
     rRun() {
       const t = state.tools[curQuota().n];
-      if (t.run) { t.run = false; stopTimer(); } else startTimer(t);
+      if (t.run) { t.run = false; stopTimer(); } else startTimer(t, curQuota().n);
       refreshTool();
     },
     rPlus() { state.tools[curQuota().n].time += 30; refreshTool(); },
@@ -371,6 +475,8 @@
   }
 
   // ---------- Pantalles de la ruta
+  const following = () => `<p class="following mono">${ICONS.route}<span>${esc(T.roles.following)}</span></p>`;
+
   function introView() {
     const I = T.intro;
     return `
@@ -385,7 +491,9 @@
           <h3 class="label">${esc(I.termsTitle)}</h3>
           <ul>${I.terms.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
         </div>
-        <button class="btn btn--primary" data-act="start">${esc(I.button)}</button>
+        ${leads()
+          ? `<button class="btn btn--primary" data-act="start">${esc(I.button)}</button>`
+          : `<p class="following mono">${ICONS.route}<span>${esc(T.roles.notStarted)}</span></p>`}
       </section>`;
   }
 
@@ -404,7 +512,7 @@
         ${s.note ? `<div class="note"><h3 class="label">${esc(T.go.note)}</h3><p>${esc(s.note)}</p></div>` : ""}
         <div class="actions">
           <a class="btn" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">${ICONS[s.mode]}${esc(T.go.openMaps)}</a>
-          <button class="btn btn--primary" data-act="arrived">${esc(T.go.arrived)}</button>
+          ${leads() ? `<button class="btn btn--primary" data-act="arrived">${esc(T.go.arrived)}</button>` : following()}
         </div>
       </article>`;
   }
@@ -419,7 +527,7 @@
         ${stopHead(s)}
         <span class="tag tag--read">${esc(T.story.readAloud)}</span>
         <div class="story">${s.story.map((p) => `<p>${esc(p)}</p>`).join("")}</div>
-        <div class="actions">${btn}</div>
+        <div class="actions">${leads() ? btn : following()}</div>
       </article>`;
   }
 
@@ -433,10 +541,12 @@
         <ol class="rules">${q.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ol>
         <p class="cond">${ICONS.check}<span><b>${esc(T.test.payBtn)}:</b> ${esc(q.pass)}</span></p>
         <div class="tool" data-tool="${q.n}">${toolView(q)}</div>
-        <div class="verdict">
-          <button class="btn btn--ko" data-act="reject">${esc(T.test.rejectBtn)}</button>
-          <button class="btn btn--ok" data-act="pay">${esc(T.test.payBtn)}</button>
-        </div>
+        ${judges()
+          ? `<div class="verdict">
+              <button class="btn btn--ko" data-act="reject">${esc(T.test.rejectBtn)}</button>
+              <button class="btn btn--ok" data-act="pay">${esc(T.test.payBtn)}</button>
+            </div>`
+          : `<p class="waiting mono">${ICONS.alert}<span>${esc(T.roles.waiting)}</span></p>`}
       </article>`;
   }
 
@@ -448,7 +558,7 @@
         <h2>${esc(T.rejected.title)}</h2>
         <p class="ko-sub mono">${esc(T.rejected.text)}</p>
         <p class="ko-text">${esc(q.reject)}</p>
-        <div class="actions"><button class="btn btn--primary" data-act="retry">${esc(T.rejected.button)}</button></div>
+        <div class="actions">${leads() ? `<button class="btn btn--primary" data-act="retry">${esc(T.rejected.button)}</button>` : following()}</div>
       </article>`;
   }
 
@@ -465,7 +575,7 @@
         ${stamp(q.n, p.at, justPaid ? "stamp--drop" : "")}
         <h2>${esc(fill(T.paid.title, { test: q.title }))}</h2>
         <p class="mono left">${esc(fill(T.paid.left, { x: left }))}</p>
-        <div class="actions">${btn}</div>
+        <div class="actions">${leads() ? btn : following()}</div>
       </article>`;
     justPaid = false;
     return html;
@@ -740,7 +850,22 @@
           </div>
         </div>`
       : `<button class="btn btn--ko" data-act="reset">${esc(M.reset)}</button>`;
+    const RL = T.roles;
+    const orgCard = !sync.on ? "" : `
+      <div class="card">
+        <h2 class="section-title">${esc(RL.orgTitle)}</h2>
+        ${isOrg()
+          ? `<p>${esc(RL.orgOn)}</p><button class="btn" data-act="orgOff">${esc(RL.orgOff)}</button>`
+          : `<p class="muted">${esc(RL.orgText)}</p>
+            <label class="pin">
+              <span class="label">${esc(RL.pinLabel)}</span>
+              <input id="pin" class="mono" type="password" inputmode="numeric" autocomplete="off" maxlength="12">
+            </label>
+            ${ui.pinWrong ? `<p class="goal goal--ko">${ICONS.alert}<span>${esc(RL.pinWrong)}</span></p>` : ""}
+            <button class="btn btn--primary" data-act="orgOn">${esc(RL.pinBtn)}</button>`}
+      </div>`;
     return `
+      ${orgCard}
       <div class="card">
         <h2 class="section-title">${esc(M.owners)}</h2>
         <table class="owners">${ownerRows}</table>
@@ -749,7 +874,7 @@
         <h2 class="section-title">${esc(M.jump)}</h2>
         ${jump}
       </div>
-      <div class="menu-reset">${reset}</div>`;
+      ${judges() ? `<div class="menu-reset">${reset}</div>` : ""}`;
   }
 
   // ---------- Vistes
@@ -775,14 +900,24 @@
   }
 
   // ---------- Accions
-  function setStage(stage, idx) {
+  function setStage(stage, idx, push = true) {
     if (idx !== undefined) state.idx = idx;
     state.stage = stage;
     ui.answer = false;
     ui.roscoAnswer = false;
     save();
+    if (push) pushProgress();
     render();
     window.scrollTo(0, 0);
+  }
+
+  // Veredicte al servidor (comprova el PIN). Si el PIN ja no val, el mòbil surt del mode organitzador.
+  async function verdict(ok) {
+    const n = STOPS[state.idx].quota;
+    const { data, error } = await sync.db.rpc("np_verdict", { pin: role.pin, n, ok });
+    if (error) { setOnline(false); return false; }
+    if (data === false) { role = {}; saveRole(); ui.pinWrong = true; render(); return false; }
+    return true;
   }
 
   const actions = {
@@ -792,13 +927,19 @@
       const s = STOPS[state.idx];
       setStage(state.paid[s.quota] ? "paid" : "test");
     },
-    reject() { setStage("rejected"); },
+    async reject() {
+      if (!judges()) return;
+      if (sync.on && !(await verdict(false))) return;
+      setStage("rejected", undefined, !sync.on);
+    },
     retry() { setStage("test"); },
-    pay() {
+    async pay() {
+      if (!judges()) return;
+      if (sync.on && !(await verdict(true))) return;
       const n = STOPS[state.idx].quota;
       if (!state.paid[n]) state.paid[n] = { at: Date.now() };
       justPaid = true;
-      setStage("paid");
+      setStage("paid", undefined, !sync.on);
     },
     next() {
       if (state.idx >= STOPS.length - 1) return actions.end();
@@ -808,8 +949,18 @@
     choose(el) {
       state.choice[STOPS[state.idx].n] = Number(el.dataset.i);
       save();
+      pushProgress();
       render();
     },
+    async orgOn() {
+      const pin = ($("#pin") || {}).value || "";
+      const { data, error } = await sync.db.rpc("np_check_pin", { pin });
+      if (error) { setOnline(false); return; }
+      ui.pinWrong = !data;
+      if (data) { role = { pin }; saveRole(); }
+      render();
+    },
+    orgOff() { role = {}; saveRole(); render(); },
     mapDay(el) { ui.mapDay = el.dataset.d; render(); },
     mapFocus(el) {
       const s = pick(STOPS[Number(el.dataset.i)]);
@@ -825,13 +976,19 @@
     },
     reset() { ui.confirmReset = true; render(); },
     resetNo() { ui.confirmReset = false; render(); },
-    resetYes() {
+    async resetYes() {
+      if (!judges()) return;
+      if (sync.on) {
+        const { data, error } = await sync.db.rpc("np_reset", { pin: role.pin });
+        if (error) { setOnline(false); return; }
+        if (data === false) { role = {}; saveRole(); ui.pinWrong = true; render(); return; }
+      }
       stopTimer();
       state = fresh();
       ui.confirmReset = false;
       ui.mapDay = null;
       tab = "route";
-      setStage("go", 0);
+      setStage("go", 0, false);
     },
     goQuota(el) { setStage("go", quota(Number(el.dataset.q)).stop - 1); },
     ...toolActions,
@@ -842,6 +999,7 @@
     if (t) {
       tab = t.dataset.tab;
       ui.confirmReset = false;
+      ui.pinWrong = false;
       render();
       window.scrollTo(0, 0);
       return;
@@ -863,7 +1021,7 @@
   document.addEventListener("visibilitychange", () => { if (!document.hidden) renderTopbar(); });
 
   // Exposat per a les fases següents i per depurar
-  window.NP = { get state() { return state; }, save, fill, esc, render, setStage, stopTimer };
+  window.NP = { get state() { return state; }, get sync() { return sync; }, save, fill, esc, render, setStage, stopTimer };
 
   // ---------- Mòbil: pantalla encesa i sense connexió
   let wakeLock = null;
@@ -885,4 +1043,5 @@
   }
 
   render();
+  startSync();
 })();

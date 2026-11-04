@@ -1031,6 +1031,20 @@ window.DATA = {
     "days": {
       "sat": "Dissabte",
       "sun": "Diumenge"
+    },
+    "roles": {
+      "orgTitle": "Mode organitzador",
+      "orgText": "Des d'aquí es veu on és la Clàudia i es posa el veredicte de cada prova.",
+      "pinLabel": "PIN dels organitzadors",
+      "pinBtn": "Entrar",
+      "pinWrong": "PIN incorrecte",
+      "orgOn": "Aquest mòbil és d'un organitzador.",
+      "orgOff": "Sortir del mode organitzador",
+      "badge": "Organitzador",
+      "following": "Seguint la Clàudia",
+      "notStarted": "La Clàudia encara no ha començat el joc.",
+      "waiting": "Esperant el veredicte dels organitzadors.",
+      "offline": "Sense connexió"
     }
   }
 };

@@ -81,6 +81,28 @@ button { font: inherit; color: inherit; }
 .topbar__row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .topbar__brand { font-family: var(--font-title); font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
 
+/* Rols i sincronització */
+.badge {
+  display: inline-block; margin-left: 8px; padding: 3px 7px; border-radius: 999px; vertical-align: 3px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--ink); color: var(--bg);
+}
+.badge--off { background: var(--ko); color: #fff; }
+.following, .waiting {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; margin: 0;
+  padding: 10px 14px; border-radius: 12px; border: 1.5px dashed var(--line);
+  font-size: 13px; font-weight: 600; color: var(--ink-soft); text-align: center;
+}
+.following svg, .waiting svg { width: 18px; height: 18px; flex: none; }
+.waiting { margin-top: 20px; border-color: var(--primary); color: var(--primary); }
+.pin { display: block; margin: 12px 0; }
+.pin input {
+  width: 100%; min-height: 48px; padding: 0 14px; border-radius: 12px;
+  border: 1.5px solid var(--line); background: var(--bg); color: var(--ink);
+  font-size: 22px; letter-spacing: 0.3em;
+}
+.card p + .btn { margin-top: 12px; }
+
 /* Contingut */
 .view {
   max-width: 480px;
