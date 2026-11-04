@@ -205,7 +205,7 @@ window.DATA = {
       "n": 11,
       "day": "sat",
       "time": "16:00",
-      "name": "Waffles 'n Beer (taller)",
+      "name": "Waffles 'n Beer",
       "kind": "Activitat",
       "quota": 5,
       "address": "Place de la Vieille Halle aux Blés 27, 1000 Bruxelles",
