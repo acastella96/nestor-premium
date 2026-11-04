@@ -376,14 +376,36 @@ button { font: inherit; color: inherit; }
 .dot--cur text { fill: var(--on-primary); }
 .map__note { font: 600 10px var(--font-mono); fill: var(--ink-soft); letter-spacing: 0.04em; text-transform: uppercase; }
 
+/* Mapa real */
+.map--real { padding: 0; overflow: hidden; }
+.realmap { height: 360px; background: var(--bg); }
+.realmap .leaflet-control-attribution { font-size: 10px; }
+.route-line { stroke: var(--primary); }
+.pin-wrap { background: none; border: 0; }
+.pin {
+  display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+  font: 700 11px/1 var(--font-mono);
+  background: var(--card); color: var(--ink); border: 2px solid var(--ink);
+  box-shadow: 0 2px 6px rgba(28, 23, 48, 0.35);
+}
+.pin--done { background: var(--ok); border-color: #fff; color: #fff; }
+.pin--cur { background: var(--primary); border-color: #fff; color: var(--on-primary); transform: scale(1.18); }
+.realmap .leaflet-popup-content { font: 14px/1.4 var(--font-text); margin: 10px 14px; }
+.realmap .leaflet-popup-content a { color: var(--primary); font-weight: 600; }
+.realmap .leaflet-popup-content-wrapper, .realmap .leaflet-popup-tip { background: var(--card); color: var(--ink); }
+.realmap .leaflet-bar a { background: var(--card); color: var(--ink); border-color: var(--line); }
+@media (prefers-color-scheme: dark) {
+  .realmap .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9); }
+}
+
 .stoplist { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
 .stoprow {
-  display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 10px;
+  display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 8px;
   padding: 10px 12px; border-radius: 12px; background: var(--card);
 }
 .stoprow__n {
-  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
-  font-size: 12px; font-weight: 700; border: 1.5px solid var(--ink);
+  width: 44px; height: 44px; padding: 0; border-radius: 50%; display: grid; place-items: center;
+  font-size: 13px; font-weight: 700; border: 1.5px solid var(--ink); background: var(--card); cursor: pointer;
 }
 .stoprow--done .stoprow__n { background: var(--ok); border-color: var(--ok); color: #fff; }
 .stoprow--cur .stoprow__n { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }

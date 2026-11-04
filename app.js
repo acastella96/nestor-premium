@@ -550,9 +550,64 @@
     return list.map((_, i) => ({ x: xs[i], y: ys[i] }));
   }
 
-  function mapView() {
-    const day = ui.mapDay || (state.started ? STOPS[state.idx].day : "sat");
-    const list = STOPS.map((s, i) => ({ s: pick(s), i })).filter((x) => x.s.day === day);
+  // Mapa real (Leaflet + OpenStreetMap). Si Leaflet no ha carregat (sense connexió), es fa servir l'esquema.
+  let leaf = null;
+  const dark = window.matchMedia("(prefers-color-scheme: dark)");
+  const TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+  dark.addEventListener("change", () => { if (tab === "map") render(); });
+
+  function unmountMap() {
+    if (leaf) { leaf.remove(); leaf = null; }
+  }
+
+  function mountMap() {
+    const el = $("#realmap");
+    if (!el || !window.L) return;
+    const list = ui.mapList;
+    leaf = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false });
+    L.tileLayer(TILES, {
+      maxZoom: 19,
+      crossOrigin: true,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(leaf);
+    const latlngs = list.map(({ s }) => [s.lat, s.lng]);
+    L.polyline(latlngs, { className: "route-line", weight: 3, dashArray: "6 7" }).addTo(leaf);
+    const markers = list.map(({ s, i }) => {
+      const st = stopStatus(i);
+      const icon = L.divIcon({ className: "pin-wrap", html: `<span class="pin pin--${st}">${s.n}</span>`, iconSize: [24, 24], iconAnchor: [12, 12] });
+      return L.marker([s.lat, s.lng], { icon, zIndexOffset: st === "cur" ? 1000 : 0, title: s.name })
+        .bindPopup(`<strong>${s.n} · ${esc(s.name)}</strong><br><span class="mono">${esc(s.time)}</span> · <a href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">${esc(T.map.maps)}</a>`)
+        .addTo(leaf);
+    });
+    // Els pins que queden enganxats al zoom actual s'aparten una mica (només el dibuix, no la posició real)
+    const spread = () => {
+      const pts = markers.map((m) => leaf.latLngToLayerPoint(m.getLatLng()));
+      const off = pts.map(() => ({ x: 0, y: 0 }));
+      const GAP = 25;
+      for (let it = 0; it < 40; it++) {
+        for (let a = 0; a < pts.length; a++) {
+          for (let b = a + 1; b < pts.length; b++) {
+            const dx = pts[b].x + off[b].x - pts[a].x - off[a].x, dy = pts[b].y + off[b].y - pts[a].y - off[a].y;
+            const d = Math.hypot(dx, dy) || 0.01;
+            if (d >= GAP) continue;
+            const push = (GAP - d) / 2, ux = dx / d || 1, uy = dy / d;
+            off[a].x -= ux * push; off[a].y -= uy * push;
+            off[b].x += ux * push; off[b].y += uy * push;
+          }
+        }
+      }
+      markers.forEach((m, k) => {
+        const pin = m.getElement() && m.getElement().querySelector(".pin");
+        if (pin) pin.style.translate = `${off[k].x.toFixed(1)}px ${off[k].y.toFixed(1)}px`;
+      });
+    };
+    leaf.on("zoomend", spread);
+    leaf.fitBounds(L.latLngBounds(latlngs), { padding: [26, 26], maxZoom: 16 });
+    spread();
+  }
+
+  function schematic(list, day) {
     const W = 320, H = 300, P = 22;
     const pts = layout(list.map((x) => x.s)).map((p) => ({ x: P + p.x * (W - 2 * P), y: P + p.y * (H - 2 * P - 14) }));
     // Si dos punts encara queden enganxats, s'aparten fins a tenir espai per al número
@@ -579,11 +634,25 @@
         <circle cx="${pts[k].x.toFixed(1)}" cy="${pts[k].y.toFixed(1)}" r="11"/>
         <text x="${pts[k].x.toFixed(1)}" y="${(pts[k].y + 4).toFixed(1)}" text-anchor="middle">${s.n}</text>
       </g>`).join("");
+    return `
+      <div class="card map">
+        <svg class="map__svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(T.map[day])}">
+          <polyline class="map__line" points="${line}"/>
+          ${dots}
+          <text class="map__note" x="${W - 6}" y="${H - 6}" text-anchor="end">${esc(T.map.schematic)}</text>
+        </svg>
+      </div>`;
+  }
+
+  function mapView() {
+    const day = ui.mapDay || (state.started ? STOPS[state.idx].day : "sat");
+    const list = STOPS.map((s, i) => ({ s: pick(s), i })).filter((x) => x.s.day === day);
+    ui.mapList = list;
     const rows = list.map(({ s, i }) => {
       const q = s.quota && quota(s.quota);
       return `
         <li class="stoprow stoprow--${stopStatus(i)}">
-          <span class="stoprow__n mono">${s.n}</span>
+          <button class="stoprow__n mono" data-act="mapFocus" data-i="${i}">${s.n}</button>
           <div class="stoprow__body">
             <span class="stoprow__time mono">${esc(s.time)}</span>
             <strong>${esc(s.name)}</strong>
@@ -594,13 +663,7 @@
     }).join("");
     return `
       ${dayTabs(day, "mapDay")}
-      <div class="card map">
-        <svg class="map__svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(T.map[day])}">
-          <polyline class="map__line" points="${line}"/>
-          ${dots}
-          <text class="map__note" x="${W - 6}" y="${H - 6}" text-anchor="end">${esc(T.map.schematic)}</text>
-        </svg>
-      </div>
+      ${window.L ? `<div class="card map map--real"><div id="realmap" class="realmap" aria-label="${esc(T.map[day])}"></div></div>` : schematic(list, day)}
       <ol class="stoplist">${rows}</ol>`;
   }
 
@@ -706,7 +769,9 @@
   function render() {
     renderTopbar();
     renderTabs();
+    unmountMap();
     $("#view").innerHTML = views[tab]();
+    if (tab === "map") mountMap();
   }
 
   // ---------- Accions
@@ -746,6 +811,12 @@
       render();
     },
     mapDay(el) { ui.mapDay = el.dataset.d; render(); },
+    mapFocus(el) {
+      const s = pick(STOPS[Number(el.dataset.i)]);
+      if (!leaf) return;
+      leaf.setView([s.lat, s.lng], 17, { animate: false });
+      $("#realmap").scrollIntoView({ behavior: "smooth", block: "center" });
+    },
     jump(el) {
       state.started = true;
       state.done = false;

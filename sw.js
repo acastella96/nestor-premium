@@ -1,7 +1,7 @@
 // Néstor Premium · service worker
 // Guarda l'app a la memòria cau perquè funcioni sense connexió. Google Maps sí que necessita dades.
 // Si canvies algun fitxer, puja el número de VERSION perquè els mòbils agafin la versió nova.
-const VERSION = "np-v3";
+const VERSION = "np-v7";
 const SHELL = [
   "./",
   "index.html",
@@ -12,8 +12,12 @@ const SHELL = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/apple-touch-icon.png",
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
 ];
-const FONTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
+// Fonts, Leaflet i les rajoles del mapa que ja s'han vist també es guarden
+const EXTERNAL = ["fonts.googleapis.com", "fonts.gstatic.com", "unpkg.com"];
+const isExternal = (host) => EXTERNAL.includes(host) || host === "tile.openstreetmap.org";
 
 self.addEventListener("install", (e) => {
   // cache: "reload" perquè no s'aprofiti cap còpia vella de la memòria HTTP del navegador
@@ -34,7 +38,7 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin && !FONTS.includes(url.hostname)) return;
+  if (url.origin !== self.location.origin && !isExternal(url.hostname)) return;
 
   e.respondWith(
     caches.open(VERSION).then(async (cache) => {
