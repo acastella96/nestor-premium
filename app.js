@@ -52,6 +52,9 @@
   const isOrg = () => sync.on && !!role.pin;
   const leads = () => !isOrg(); // qui avança la ruta: la Clàudia (o tothom si no hi ha sincronització)
   const judges = () => !sync.on || isOrg(); // qui pot posar "Quota pagada" i "Pagament rebutjat"
+  // Al mòbil de la Clàudia, les proves pendents són sorpresa: ni quina és ni amb qui fins que hi arriba
+  const surprise = () => sync.on && !isOrg();
+  const hidden = (q) => surprise() && !state.paid[q.n];
 
   function pushProgress() {
     if (!sync.on) return;
@@ -201,7 +204,7 @@
     </div>`;
 
   const tagFor = (s) => {
-    if (s.quota) return fill(T.go.tagQuota, { n: s.quota, owner: quota(s.quota).owner });
+    if (s.quota && !hidden(quota(s.quota))) return fill(T.go.tagQuota, { n: s.quota, owner: quota(s.quota).owner });
     return s.kind === "Visita" || s.kind === "Activitat" ? T.go.tagVisit : T.go.tagFood;
   };
 
@@ -504,7 +507,7 @@
         ${stopHead(s)}
         ${choiceBar(s)}
         <p class="addr">${ICONS.pin}<span>${esc(s.address)}</span></p>
-        <span class="tag${s.quota ? " tag--quota" : ""}">${esc(tagFor(s))}</span>
+        <span class="tag${s.quota && !hidden(quota(s.quota)) ? " tag--quota" : ""}">${esc(tagFor(s))}</span>
         <div class="howto">
           <h3 class="label">${ICONS[s.mode]}${esc(T.go.howto)}</h3>
           <p>${esc(s.howto)}</p>
@@ -610,8 +613,8 @@
           <li class="card pending__item">
             <div>
               <div class="kicker mono"><span>${esc(fill(T.test.quota, { n: q.n }))}</span></div>
-              <strong>${esc(q.title)}</strong>
-              <span class="muted">${esc(STOPS[q.stop - 1].name)} · ${esc(q.owner)}</span>
+              ${hidden(q) ? "" : `<strong>${esc(q.title)}</strong>`}
+              <span class="muted">${esc(STOPS[q.stop - 1].name)}${hidden(q) ? "" : ` · ${esc(q.owner)}`}</span>
             </div>
             <button class="btn btn--small" data-act="goQuota" data-q="${q.n}">${esc(P.go)}</button>
           </li>`).join("")}
@@ -766,7 +769,7 @@
           <div class="stoprow__body">
             <span class="stoprow__time mono">${esc(s.time)}</span>
             <strong>${esc(s.name)}</strong>
-            ${q ? `<span class="tag tag--quota">${esc(fill(T.go.tagQuota, { n: q.n, owner: q.owner }))}</span>` : ""}
+            ${q && !hidden(q) ? `<span class="tag tag--quota">${esc(fill(T.go.tagQuota, { n: q.n, owner: q.owner }))}</span>` : ""}
           </div>
           <a class="stoprow__maps" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">${ICONS.pin}${esc(T.map.maps)}</a>
         </li>`;
@@ -788,8 +791,8 @@
         return `
           <div class="slot">
             <span class="slot__n mono">${q.n}</span>
-            <span class="slot__title">${esc(q.title)}</span>
-            <span class="slot__owner">${esc(q.owner)}</span>
+            ${hidden(q) ? "" : `<span class="slot__title">${esc(q.title)}</span>
+            <span class="slot__owner">${esc(q.owner)}</span>`}
           </div>`;
       }
       return `
@@ -805,8 +808,8 @@
     const rows = QUOTAS.map((q) => {
       const p = state.paid[q.n];
       return `<tr class="${p ? "" : "is-pending"}">
-        <th><span class="mono">${q.n}</span> ${esc(q.title)}</th>
-        <td>${esc(pick(STOPS[q.stop - 1]).name)}</td>
+        <th><span class="mono">${q.n}</span> ${hidden(q) ? "" : esc(q.title)}</th>
+        <td>${hidden(q) ? "–" : esc(pick(STOPS[q.stop - 1]).name)}</td>
         <td class="mono">${p ? esc(clock(p.at)) : esc(P.pending)}</td>
       </tr>`;
     }).join("");
@@ -866,10 +869,10 @@
       </div>`;
     return `
       ${orgCard}
-      <div class="card">
+      ${surprise() ? "" : `<div class="card">
         <h2 class="section-title">${esc(M.owners)}</h2>
         <table class="owners">${ownerRows}</table>
-      </div>
+      </div>`}
       <div class="card">
         <h2 class="section-title">${esc(M.jump)}</h2>
         ${jump}
