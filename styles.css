@@ -95,8 +95,8 @@ button { font: inherit; color: inherit; }
 }
 .following svg, .waiting svg { width: 18px; height: 18px; flex: none; }
 .waiting { margin-top: 20px; border-color: var(--primary); color: var(--primary); }
-.pin { display: block; margin: 12px 0; }
-.pin input {
+.pinfield { display: block; margin: 12px 0; }
+.pinfield input {
   width: 100%; min-height: 48px; padding: 0 14px; border-radius: 12px;
   border: 1.5px solid var(--line); background: var(--bg); color: var(--ink);
   font-size: 22px; letter-spacing: 0.3em;

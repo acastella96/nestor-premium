@@ -857,7 +857,7 @@
         ${isOrg()
           ? `<p>${esc(RL.orgOn)}</p><button class="btn" data-act="orgOff">${esc(RL.orgOff)}</button>`
           : `<p class="muted">${esc(RL.orgText)}</p>
-            <label class="pin">
+            <label class="pinfield">
               <span class="label">${esc(RL.pinLabel)}</span>
               <input id="pin" class="mono" type="password" inputmode="numeric" autocomplete="off" maxlength="12">
             </label>
