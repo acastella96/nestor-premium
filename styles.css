@@ -144,12 +144,14 @@ button { font: inherit; color: inherit; }
   left: 0; right: 0; bottom: 0;
   z-index: 10;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   height: calc(var(--tabbar-h) + var(--safe-bottom));
   padding-bottom: var(--safe-bottom);
   background: var(--card);
   border-top: 1px solid var(--line);
 }
+.tabbar[hidden] { display: none; }
 .tab {
   display: flex;
   flex-direction: column;
@@ -343,6 +345,51 @@ button { font: inherit; color: inherit; }
 .qstats { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-top: 12px; font-size: 13px; color: var(--ink-soft); }
 .qstats b { color: var(--ink); }
 .qstats .goal--ok b { color: var(--ok); }
+
+/* Proves per rondes (fotos i preguntes) */
+.rounds__head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); }
+.rounds__dots { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; margin: 10px 0 12px; }
+.rdot { min-height: 44px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); font-size: 14px; font-weight: 700; cursor: pointer; }
+.rdot--ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+.rdot--ko { background: var(--ko); border-color: var(--ko); color: #fff; }
+.rdot--cur { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--primary); }
+.rounds__hint { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
+.rounds__key { margin-top: 12px; }
+.rounds__marks { margin-top: 14px; }
+.rounds__marks .btn:last-child { grid-column: auto; }
+.photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.photo {
+  position: relative; display: block; aspect-ratio: 1; padding: 0; overflow: hidden;
+  border: 3px solid transparent; border-radius: 12px; background: var(--bg); cursor: pointer;
+}
+.photo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.photo--on { border-color: var(--primary); }
+.photo__n {
+  position: absolute; top: 6px; left: 6px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  font-size: 13px; font-weight: 700; background: var(--ink); color: var(--bg);
+}
+.photo--on .photo__n { background: var(--primary); color: var(--on-primary); }
+
+/* Proves per parada (organitzadors) */
+.tests-intro { margin: 0 0 12px; }
+.tests-back { margin-bottom: 12px; }
+.testlist { list-style: none; margin: 0 0 16px; padding: 0; }
+.testlist:last-child { margin-bottom: 0; }
+.testrow {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px; width: 100%; min-height: 48px;
+  padding: 10px 0; border: 0; border-top: 1px dashed var(--line); background: none; text-align: left; cursor: pointer;
+}
+.testrow strong { line-height: 1.25; overflow-wrap: anywhere; }
+.testrow__time { font-size: 12px; color: var(--ink-soft); }
+.testrow__q { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 14px; }
+.testrow__q svg { width: 16px; height: 16px; color: var(--ok); }
+.testrow .tag { font-size: 11px; padding: 3px 8px; }
+.cond--ko { background: var(--ko-soft); color: var(--ko); }
+.practice { margin: 16px 0 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--primary); }
+.practice + .tool { margin-top: 8px; }
+.readaloud { margin-top: 14px; }
+.readaloud summary { min-height: 44px; margin: 0; cursor: pointer; }
+.readaloud .story { margin-top: 8px; }
 
 .linkbtn {
   display: block; margin: 10px auto 0; padding: 10px 6px; min-height: 44px;

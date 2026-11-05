@@ -4,6 +4,26 @@ window.DATA = {
   "stops": [
     {
       "n": 1,
+      "day": "fri",
+      "time": "Nit",
+      "name": "Divendres a la nit",
+      "kind": "Activitat",
+      "quota": 1,
+      "tag": "Primera quota",
+      "address": null,
+      "mode": "walking",
+      "lat": null,
+      "lng": null,
+      "title": "Divendres a la nit",
+      "howto": null,
+      "note": "Això es fa quan estigueu tots junts. Avui no cal moure's.",
+      "story": [
+        "Hola, Clàudia. La ruta per Brussel·les comença demà, però la primera quota es paga aquesta nit.",
+        "Abans de renovar una subscripció, cal saber què s'està contractant. El Néstor ha respost deu preguntes sobre ell mateix, i ara et toca a tu. A veure quant el coneixes."
+      ]
+    },
+    {
+      "n": 2,
       "day": "sat",
       "time": "09:30",
       "name": "Maison Dandoy",
@@ -17,18 +37,18 @@ window.DATA = {
       "howto": "Des de l'apartament. És a tocar de la Grand-Place. Esmorzar: cafè i gofre de Brussel·les.",
       "note": "Mireu l'horari d'obertura del matí abans de sortir. Si encara no han obert, el Mokafé de la Galerie du Roi també fa gofres.",
       "story": [
-        "Benvinguda a la teva primera parada, Clàudia. La Maison Dandoy fa galetes des del 1829, quan Jean-Baptiste Dandoy va obrir botiga al carrer del Beurre, aquí al costat. És la galeteria més antiga de Brussel·les i aquí la fama la tenen els speculoos, les galetes d'espècies que els nens belgues mengen per Sant Nicolau.",
+        "Benvinguda a la primera parada de la ruta, Clàudia. La Maison Dandoy fa galetes des del 1829, quan Jean-Baptiste Dandoy va obrir botiga al carrer del Beurre, aquí al costat. És la galeteria més antiga de Brussel·les i aquí la fama la tenen els speculoos, les galetes d'espècies que els nens belgues mengen per Sant Nicolau.",
         "A Bèlgica hi ha dues gofres i no es poden confondre. La de Brussel·les és rectangular, lleugera i cruixent, amb una vintena de forats ben marcats. La de Lieja és irregular, més densa i porta perles de sucre que es caramel·litzen a la planxa. Avui toca la de Brussel·les. Demà, la de Lieja.",
-        "Mentre esmorzes, una cosa de la teva subscripció: el període de prova gratuït amb el Néstor s'acaba. Tens onze quotes per pagar abans de diumenge a la tarda. La primera t'espera al Manneken Pis."
+        "Mentre esmorzes, una cosa de la teva subscripció: el període de prova gratuït amb el Néstor s'acaba. Són dotze quotes per pagar abans de diumenge a la tarda. La primera va ser divendres a la nit. La següent t'espera al Manneken Pis."
       ]
     },
     {
-      "n": 2,
+      "n": 3,
       "day": "sat",
       "time": "10:15",
       "name": "Manneken Pis",
       "kind": "Visita",
-      "quota": 1,
+      "quota": 2,
       "address": "Manneken Pis, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.845,
@@ -43,12 +63,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 3,
+      "n": 4,
       "day": "sat",
       "time": "10:45",
       "name": "Grand-Place",
       "kind": "Visita",
-      "quota": 2,
+      "quota": 3,
       "address": "Grand-Place, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.8468,
@@ -63,12 +83,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 4,
+      "n": 5,
       "day": "sat",
       "time": "11:20",
       "name": "Galeries Royales Saint-Hubert i Tropismes",
       "kind": "Visita",
-      "quota": 3,
+      "quota": 4,
       "address": "Tropismes, Galerie des Princes 11, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.848,
@@ -83,7 +103,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 5,
+      "n": 6,
       "day": "sat",
       "time": "11:55",
       "name": "Catedral de Sant Miquel i Santa Gúdula",
@@ -103,7 +123,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 6,
+      "n": 7,
       "day": "sat",
       "time": "12:15",
       "name": "Passerelle Tondo",
@@ -123,7 +143,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 7,
+      "n": 8,
       "day": "sat",
       "time": "12:45",
       "name": "Maison Saint-Cyr",
@@ -143,12 +163,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 8,
+      "n": 9,
       "day": "sat",
       "time": "13:05",
       "name": "Parc del Cinquantenari",
       "kind": "Visita",
-      "quota": 4,
+      "quota": 5,
       "address": "Arcades du Cinquantenaire, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.8398,
@@ -163,7 +183,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 9,
+      "n": 10,
       "day": "sat",
       "time": "14:00",
       "name": "Chez Léon",
@@ -182,7 +202,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 10,
+      "n": 11,
       "day": "sat",
       "time": "15:15",
       "name": "Mont des Arts",
@@ -202,12 +222,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 11,
+      "n": 12,
       "day": "sat",
       "time": "16:00",
       "name": "Waffles 'n Beer",
       "kind": "Activitat",
-      "quota": 5,
+      "quota": 6,
       "address": "Place de la Vieille Halle aux Blés 27, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.8444,
@@ -221,12 +241,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 12,
+      "n": 13,
       "day": "sat",
       "time": "18:30",
       "name": "À la Mort Subite o Moeder Lambic",
       "kind": "Bar",
-      "quota": 6,
+      "quota": 7,
       "address": "À la Mort Subite, Rue Montagne aux Herbes Potagères 7, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.8483,
@@ -237,7 +257,7 @@ window.DATA = {
       "story": [
         "Cafè dels de tota la vida, amb miralls, columnes, taules de fusta i cambrers amb davantal. És en aquest carrer des del 1928 i el porta la mateixa família.",
         "El nom ve d'un joc de daus. Els empleats del Banc Nacional, que era a prop, hi venien a l'hora de dinar i, quan s'havien de tornar a la feina, jugaven una última partida ràpida que en deien la mort sobtada. El nom es va quedar al cafè, i més tard una cervesa en va agafar el nom.",
-        "La Paula porta unes fotos al mòbil. Prepara't."
+        "La Paula porta unes fotos. Prepara't."
       ],
       "options": [
         {
@@ -251,7 +271,7 @@ window.DATA = {
           "story": [
             "Cafè dels de tota la vida, amb miralls, columnes, taules de fusta i cambrers amb davantal. És en aquest carrer des del 1928 i el porta la mateixa família.",
             "El nom ve d'un joc de daus. Els empleats del Banc Nacional, que era a prop, hi venien a l'hora de dinar i, quan s'havien de tornar a la feina, jugaven una última partida ràpida que en deien la mort sobtada. El nom es va quedar al cafè, i més tard una cervesa en va agafar el nom.",
-            "La Paula porta unes fotos al mòbil. Prepara't."
+            "La Paula porta unes fotos. Prepara't."
           ]
         },
         {
@@ -264,18 +284,18 @@ window.DATA = {
           "howto": "A peu, uns 8 minuts cap a la Place Fontainas.",
           "story": [
             "Un dels bars de cervesa artesana més ben valorats de la ciutat, amb gairebé cinquanta aixetes. Demaneu un lambic, la cervesa de Brussel·les per excel·lència: fermenta sola, amb els llevats salvatges que hi ha a l'aire de la vall del Senne, sense que ningú n'hi afegeixi.",
-            "Del lambic en surten la gueuze, que barreja lambics joves i vells, i la kriek, amb cireres. La Paula porta unes fotos al mòbil. Prepara't."
+            "Del lambic en surten la gueuze, que barreja lambics joves i vells, i la kriek, amb cireres. La Paula porta unes fotos. Prepara't."
           ]
         }
       ]
     },
     {
-      "n": 13,
+      "n": 14,
       "day": "sat",
       "time": "20:00",
       "name": "Frites Atelier",
       "kind": "Sopar",
-      "quota": 7,
+      "quota": 8,
       "address": "Frites Atelier, Rue Sainte-Catherine 32, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.8503,
@@ -290,7 +310,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 14,
+      "n": 15,
       "day": "sat",
       "time": "21:30",
       "name": "Jeanneke Pis",
@@ -309,12 +329,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 15,
+      "n": 16,
       "day": "sat",
       "time": "21:45",
       "name": "Delirium Café",
       "kind": "Bar",
-      "quota": 8,
+      "quota": 9,
       "address": "Delirium Café, Impasse de la Fidélité 4, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.8485,
@@ -328,12 +348,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 16,
+      "n": 17,
       "day": "sun",
       "time": "10:30",
       "name": "Le Roi de la Gaufre",
       "kind": "Esmorzar",
-      "quota": 9,
+      "quota": 10,
       "address": "Le Roi de la Gaufre, Rue de la Fourche 41, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.8487,
@@ -348,12 +368,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 17,
+      "n": 18,
       "day": "sun",
       "time": "11:45",
       "name": "Atomium",
       "kind": "Visita",
-      "quota": 10,
+      "quota": 11,
       "address": "Atomium, Place de l'Atomium 1, 1020 Bruxelles",
       "mode": "transit",
       "lat": 50.8949,
@@ -368,7 +388,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 18,
+      "n": 19,
       "day": "sun",
       "time": "13:30",
       "name": "Rambo",
@@ -387,7 +407,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 19,
+      "n": 20,
       "day": "sun",
       "time": "15:00",
       "name": "Sablon: Wittamer i Pierre Marcolini",
@@ -406,7 +426,7 @@ window.DATA = {
       ]
     },
     {
-      "n": 20,
+      "n": 21,
       "day": "sun",
       "time": "16:00",
       "name": "Laurent Gerbaud",
@@ -424,12 +444,12 @@ window.DATA = {
       ]
     },
     {
-      "n": 21,
+      "n": 22,
       "day": "sun",
       "time": "16:30",
       "name": "Galeries: Corné Port-Royal i La Belgique Gourmande",
       "kind": "Xocolata",
-      "quota": 11,
+      "quota": 12,
       "address": "Corné Port-Royal, Galerie du Roi 24, 1000 Bruxelles",
       "mode": "walking",
       "lat": 50.8487,
@@ -446,10 +466,29 @@ window.DATA = {
   "quotas": [
     {
       "n": 1,
+      "title": "Preguntes sobre el Néstor",
+      "owner": "tothom",
+      "with": "La fas davant de tothom. Validem tots.",
+      "toolName": "Preguntes i respostes",
+      "stop": 1,
+      "rules": [
+        "Són deu preguntes sobre el Néstor. Les respostes les ha donat ell mateix.",
+        "La Clàudia respon en veu alta, una per una, i els organitzadors miren la resposta al seu mòbil.",
+        "Cada error, glop per a la Clàudia."
+      ],
+      "pass": "amb 7 encerts de 10.",
+      "reject": "xupito i es tornen a fer les preguntes fallades.",
+      "tool": {
+        "type": "quiz",
+        "need": 7
+      }
+    },
+    {
+      "n": 2,
       "title": "Matrimoni",
       "owner": "Bernat",
       "toolName": "Marcador Clàudia vs Bernat",
-      "stop": 2,
+      "stop": 3,
       "rules": [
         "Busqueu algú que porti anell de casat o casada i demaneu-li si vol jugar.",
         "Abans que respongui, la Clàudia i en Bernat aposten quants anys fa que està casat o casada.",
@@ -464,11 +503,11 @@ window.DATA = {
       }
     },
     {
-      "n": 2,
+      "n": 3,
       "title": "Pel·lícules",
       "owner": "Paula",
       "toolName": "Comptador d'intents fallits",
-      "stop": 3,
+      "stop": 4,
       "rules": [
         "La Clàudia i la Paula trien una pel·lícula sense dir-la a ningú.",
         "Han de convèncer un grup de desconeguts perquè recreïn una escena amb elles. Com més gent, millor.",
@@ -483,11 +522,11 @@ window.DATA = {
       }
     },
     {
-      "n": 3,
+      "n": 4,
       "title": "Calbs",
       "owner": "Ognen",
       "toolName": "Marcador Clàudia vs Ognen",
-      "stop": 4,
+      "stop": 5,
       "rules": [
         "Heu de trobar cinc calbs que acceptin un petó a la closca.",
         "La Clàudia i l'Ognen ho demanen junts, però és el calb qui tria qui dels dos li fa el petó.",
@@ -502,11 +541,11 @@ window.DATA = {
       }
     },
     {
-      "n": 4,
+      "n": 5,
       "title": "Guia turística",
       "owner": "Norber",
       "toolName": "Marcador de vots",
-      "stop": 8,
+      "stop": 9,
       "rules": [
         "La Clàudia i en Norber trien cadascú un edifici, una estàtua o un racó del parc.",
         "Cadascú s'inventa per què és tan important i ho explica al grup com si fos guia oficial. Com més convincent, millor.",
@@ -520,11 +559,11 @@ window.DATA = {
       }
     },
     {
-      "n": 5,
+      "n": 6,
       "title": "La gofre del Néstor",
       "owner": "Ognen",
       "toolName": "Votació d'1 a 10",
-      "stop": 11,
+      "stop": 12,
       "rules": [
         "Al taller es cuina per parelles: la Clàudia i l'Ognen comparteixen estació.",
         "Han de fer la gofre del Néstor, decorada amb alguna cosa que el representi.",
@@ -546,30 +585,29 @@ window.DATA = {
       }
     },
     {
-      "n": 6,
+      "n": 7,
       "title": "Parts del cos del Néstor",
       "owner": "Paula",
-      "toolName": "Encerts i errors",
-      "stop": 12,
+      "toolName": "Fotos per rondes",
+      "stop": 13,
       "rules": [
-        "La Paula ensenya parelles de fotos: una part del cos del Néstor i una de semblant trobada a Google.",
-        "La Clàudia ha d'endevinar quina és la del Néstor.",
+        "A cada ronda surten cinc fotos de la mateixa part del cos. Només una és del Néstor.",
+        "La Clàudia ha d'endevinar quina és.",
         "Cada error, glop per a la Clàudia. Cada encert, glop per a la Paula."
       ],
-      "pass": "amb 7 encerts de 10.",
-      "reject": "xupito i una ronda de tres fotos més.",
+      "pass": "amb 4 encerts de 6.",
+      "reject": "xupito i es tornen a fer les rondes fallades.",
       "tool": {
-        "type": "hits",
-        "need": 7,
-        "total": 10
+        "type": "photos",
+        "need": 4
       }
     },
     {
-      "n": 7,
+      "n": 8,
       "title": "Pasapalabra",
       "owner": "Albert",
       "toolName": "Rosco",
-      "stop": 13,
+      "stop": 14,
       "rules": [
         "En Albert fa de presentador i llegeix cada definició en veu alta.",
         "La Clàudia respon. Si no ho sap, diu «passa paraula» i aquella lletra torna al final de la volta.",
@@ -585,11 +623,11 @@ window.DATA = {
       }
     },
     {
-      "n": 8,
+      "n": 9,
       "title": "Les deu clàusules",
       "owner": "Bernat",
       "toolName": "Deu cartes",
-      "stop": 15,
+      "stop": 16,
       "rules": [
         "Cada cervesa de la fusta té una clàusula del contracte.",
         "En Bernat tria una cervesa i la Clàudia descobreix la carta amb el mateix número.",
@@ -603,11 +641,11 @@ window.DATA = {
       }
     },
     {
-      "n": 9,
+      "n": 10,
       "title": "Gofre sense mans",
       "owner": "Norber",
       "toolName": "Cap",
-      "stop": 16,
+      "stop": 17,
       "rules": [
         "La Clàudia i en Norber demanen al taulell, en francès i sense ajuda: «Bonjour, je voudrais une gaufre de Liège et un café, s'il vous plaît.»",
         "Si qui atén us contesta en anglès o en castellà, no compta i s'ha de tornar a demanar.",
@@ -620,11 +658,11 @@ window.DATA = {
       }
     },
     {
-      "n": 10,
+      "n": 11,
       "title": "Preguntes de Catalunya",
       "owner": "Albert",
       "toolName": "Banc de preguntes",
-      "stop": 17,
+      "stop": 18,
       "rules": [
         "Busqueu un desconegut que vulgui jugar. La Clàudia i l'Albert li fan tres preguntes sobre Catalunya, sense opcions.",
         "Les ha d'encertar totes tres.",
@@ -637,11 +675,11 @@ window.DATA = {
       }
     },
     {
-      "n": 11,
+      "n": 12,
       "title": "Tast de xocolata a cegues",
       "owner": "Mendo",
       "toolName": "Encerts i errors",
-      "stop": 21,
+      "stop": 22,
       "rules": [
         "Teniu cinc bombons: Wittamer, Pierre Marcolini, Laurent Gerbaud, Corné Port-Royal i La Belgique Gourmande.",
         "Ulls tapats. En Mendo dona els bombons a la Clàudia en ordre aleatori. Ell també els tasta a cegues.",
@@ -862,13 +900,14 @@ window.DATA = {
     "appName": "Néstor Premium",
     "tabs": {
       "route": "Ruta",
+      "tests": "Proves",
       "map": "Mapa",
       "passport": "Passaport",
       "menu": "Menú"
     },
     "intro": {
       "title": "Hola, Clàudia. El teu període de prova gratuït s'acaba.",
-      "text": "Per continuar gaudint de Néstor Premium has de renovar la subscripció abans de diumenge a les 17:00. La renovació es paga en onze quotes.",
+      "text": "Per continuar gaudint de Néstor Premium has de renovar la subscripció abans de diumenge a les 17:00. La renovació es paga en dotze quotes.",
       "howTitle": "Com funciona:",
       "how": [
         "L'app et porta parada per parada per Brussel·les. A cada lloc obre el Google Maps per arribar-hi.",
@@ -881,7 +920,7 @@ window.DATA = {
         "Els amics decideixen si una prova està superada. No s'admeten reclamacions.",
         "Els pagaments rebutjats es recarreguen amb alcohol.",
         "Llegir les explicacions en veu alta és obligatori, també amb ressaca.",
-        "Sense les onze quotes, el Néstor passa a la versió gratuïta, amb anuncis."
+        "Sense les dotze quotes, el Néstor passa a la versió gratuïta, amb anuncis."
       ],
       "button": "Accepto i començo"
     },
@@ -892,7 +931,7 @@ window.DATA = {
       "renewed": "Pla anual actiu · Subscripció renovada",
       "expired": "Subscripció cancel·lada. Fins aviat! Néstor."
     },
-    "sundayBanner": "Bon dia. Avui s'acaba el període de prova. Portes {x} d'11 quotes pagades. Cafè, gofre i som-hi.",
+    "sundayBanner": "Bon dia. Avui s'acaba el període de prova. Portes {x} de 12 quotes pagades. Cafè, gofre i som-hi.",
     "go": {
       "stopOf": "parada {n} de {total}",
       "tagQuota": "Quota {n} · amb {owner}",
@@ -911,7 +950,7 @@ window.DATA = {
       "next": "Següent destí"
     },
     "test": {
-      "quota": "QUOTA {n}/11",
+      "quota": "QUOTA {n}/12",
       "with": "Ho fas amb {owner}. Validen tots els altres.",
       "rejectBtn": "Pagament rebutjat",
       "payBtn": "Quota pagada"
@@ -926,7 +965,7 @@ window.DATA = {
       "stamp": [
         "Néstor Premium",
         "PAGAT",
-        "Quota {n}/11",
+        "Quota {n}/12",
         "{time}"
       ],
       "title": "{test}: quota pagada",
@@ -963,12 +1002,12 @@ window.DATA = {
         ]
       ],
       "endorsed": "Avalada per Norber, Bernat, Paula, Ognen, Albert i Mendo.",
-      "stamp": "RENOVAT · 11/11 quotes",
+      "stamp": "RENOVAT · 12/12 quotes",
       "cta": "Fes-ne una captura i envia-la al Néstor."
     },
     "pending": {
       "title": "Renovació pendent",
-      "text": "Hem acabat la ruta, però falten {x} quotes. Sense totes onze, el Néstor passa a la versió gratuïta.",
+      "text": "Hem acabat la ruta, però falten {x} quotes. Sense totes dotze, el Néstor passa a la versió gratuïta.",
       "go": "Anar-hi"
     },
     "rosco": {
@@ -1001,7 +1040,14 @@ window.DATA = {
       "average": "Mitjana",
       "noVote": "–",
       "streak": "encerts seguits",
-      "failedStrangers": "desconeguts que han fallat"
+      "failedStrangers": "desconeguts que han fallat",
+      "round": "Ronda {x} de {n}",
+      "pickHint": "Toca la foto que creus que és la del Néstor.",
+      "photoAlt": "Foto {n}",
+      "key": "És la foto {n}",
+      "hit": "Encert",
+      "miss": "Error",
+      "tally": "{ok} encerts, {ko} errors. Calen {need} de {n}."
     },
     "map": {
       "sat": "Dissabte",
@@ -1010,7 +1056,7 @@ window.DATA = {
       "maps": "Maps"
     },
     "passport": {
-      "header": "Passaport de renovació · Clàudia · {x} d'11 quotes pagades",
+      "header": "Passaport de renovació · Clàudia · {x} de 12 quotes pagades",
       "stamp": "PAGAT",
       "pending": "pendent",
       "cols": [
@@ -1029,12 +1075,13 @@ window.DATA = {
       "resetNo": "Cancel·la"
     },
     "days": {
+      "fri": "Divendres",
       "sat": "Dissabte",
       "sun": "Diumenge"
     },
     "roles": {
       "orgTitle": "Mode organitzador",
-      "orgText": "Des d'aquí es veu on és la Clàudia i es posa el veredicte de cada prova.",
+      "orgText": "Des d'aquí es veu on és la Clàudia, es preparen les proves i es posa el veredicte de cada una.",
       "pinLabel": "PIN dels organitzadors",
       "pinBtn": "Entrar",
       "pinWrong": "PIN incorrecte",
@@ -1044,7 +1091,132 @@ window.DATA = {
       "following": "Seguint la Clàudia",
       "notStarted": "La Clàudia encara no ha començat el joc.",
       "waiting": "Esperant el veredicte dels organitzadors.",
-      "offline": "Sense connexió"
+      "offline": "Sense connexió",
+      "gateTitle": "Com entres?",
+      "claudiaBtn": "Mode Clàudia",
+      "orgBtn": "Mode organitzador",
+      "back": "Enrere",
+      "claudiaOn": "Aquest mòbil és de la Clàudia.",
+      "change": "Canviar de mode"
+    },
+    "tests": {
+      "title": "Proves per parada",
+      "intro": "Mira cada parada i assaja'n la prova. El que toquis aquí no compta al joc.",
+      "noTest": "Sense prova",
+      "back": "Totes les parades",
+      "read": "El que llegeix la Clàudia",
+      "reject": "Si falla",
+      "practice": "Assaig: no compta al joc"
     }
-  }
+  },
+  "photoRounds": [
+    {
+      "part": "Ulls",
+      "photos": [
+        "fotos/ulls-1.jpg",
+        "fotos/ulls-2.jpg",
+        "fotos/ulls-3.jpg",
+        "fotos/ulls-4.jpg",
+        "fotos/ulls-5.jpg"
+      ],
+      "answer": null
+    },
+    {
+      "part": "Nas",
+      "photos": [
+        "fotos/nas-1.jpg",
+        "fotos/nas-2.jpg",
+        "fotos/nas-3.jpg",
+        "fotos/nas-4.jpg",
+        "fotos/nas-5.jpg"
+      ],
+      "answer": null
+    },
+    {
+      "part": "Llavis",
+      "photos": [
+        "fotos/llavis-1.jpg",
+        "fotos/llavis-2.jpg",
+        "fotos/llavis-3.jpg",
+        "fotos/llavis-4.jpg",
+        "fotos/llavis-5.jpg"
+      ],
+      "answer": null
+    },
+    {
+      "part": "Melic",
+      "photos": [
+        "fotos/melic-1.jpg",
+        "fotos/melic-2.jpg",
+        "fotos/melic-3.jpg",
+        "fotos/melic-4.jpg",
+        "fotos/melic-5.jpg"
+      ],
+      "answer": null
+    },
+    {
+      "part": "Mans",
+      "photos": [
+        "fotos/mans-1.jpg",
+        "fotos/mans-2.jpg",
+        "fotos/mans-3.jpg",
+        "fotos/mans-4.jpg",
+        "fotos/mans-5.jpg"
+      ],
+      "answer": null
+    },
+    {
+      "part": "Orelles",
+      "photos": [
+        "fotos/orelles-1.jpg",
+        "fotos/orelles-2.jpg",
+        "fotos/orelles-3.jpg",
+        "fotos/orelles-4.jpg",
+        "fotos/orelles-5.jpg"
+      ],
+      "answer": null
+    }
+  ],
+  "nestorQuiz": [
+    {
+      "q": "Color preferit",
+      "a": "Azul"
+    },
+    {
+      "q": "Beguda espirituosa preferida",
+      "a": "Vino tinto (quizá va por cocktails y os dice Moscow Mule o Ginger Martini por Indonesia)"
+    },
+    {
+      "q": "Cançó amb la que sempre es motiva",
+      "a": "Victory Lap de Fred Again"
+    },
+    {
+      "q": "Serie preferida",
+      "a": "Los Soprano o Gomorra"
+    },
+    {
+      "q": "Equip de futbol preferit",
+      "a": "Fútbol poco, pero CD Castellón"
+    },
+    {
+      "q": "El que més li agrada de na Clàudia",
+      "a": "Casi siempre tiene una sonrisa en la cara y le dan ataques de mimos que le alegran el día a cualquiera. También que es muy empática y siempre pone a los demás por delante."
+    },
+    {
+      "q": "El que més nerviós el posa de na Clàudia",
+      "a": "La procrastinación extrema en algunas cosas (esta mejorando) y que no confía en ella todo lo que debería."
+    },
+    {
+      "q": "Menjar que menys li agrada",
+      "a": "Ninguno en especial, pero os dirá que no me gustan las olivas (estoy reconciliándome con ellas jajaj)"
+    },
+    {
+      "q": "Plan preferit",
+      "a": "Vermut, paella, piscina y copas en mi casa de Castellón (con amigos o familia)"
+    },
+    {
+      "q": "Lloc preferit d'Indonèsia",
+      "a": "Isla de Flores y Parque Nacional de Komodo"
+    }
+  ]
 };

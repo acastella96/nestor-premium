@@ -55,6 +55,8 @@
   // Al mòbil de la Clàudia, les proves pendents són sorpresa: ni quina és ni amb qui fins que hi arriba
   const surprise = () => sync.on && !isOrg();
   const hidden = (q) => surprise() && !state.paid[q.n];
+  // En obrir l'app per primer cop, cada mòbil tria de qui és
+  const needsRole = () => sync.on && !role.pin && role.mode !== "claudia";
 
   function pushProgress() {
     if (!sync.on) return;
@@ -157,6 +159,7 @@
   const svg = (body) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
   const ICONS = {
     route: svg('<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/>'),
+    tests: svg('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h6"/>'),
     map: svg('<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>'),
     passport: svg('<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M9 16h6"/>'),
     menu: svg('<path d="M4 7h16M4 12h16M4 17h16"/>'),
@@ -205,6 +208,7 @@
 
   const tagFor = (s) => {
     if (s.quota && !hidden(quota(s.quota))) return fill(T.go.tagQuota, { n: s.quota, owner: quota(s.quota).owner });
+    if (s.tag) return s.tag;
     return s.kind === "Visita" || s.kind === "Activitat" ? T.go.tagVisit : T.go.tagFood;
   };
 
@@ -233,9 +237,11 @@
   // ---------- Eines de les proves (l'estat de cada una es desa a state.tools[n])
   const TT = T.tools;
   const R = T.rosco;
-  const ui = { answer: false, roscoAnswer: false, mapDay: null, confirmReset: false, pinWrong: false }; // coses de pantalla que no cal desar
-  const curQuota = () => quota(STOPS[state.idx].quota);
-  const tool = (q, init) => state.tools[q.n] || (state.tools[q.n] = init());
+  const ui = { answer: false, roscoAnswer: false, mapDay: null, confirmReset: false, pinWrong: false, gatePin: false, preview: null, previewTools: {} }; // coses de pantalla que no cal desar
+  // A l'assaig dels organitzadors, les eines treballen amb una còpia que no es desa ni s'envia
+  const tools = () => (ui.preview ? ui.previewTools : state.tools);
+  const curQuota = () => quota(STOPS[ui.preview ? ui.preview.i : state.idx].quota);
+  const tool = (q, init) => tools()[q.n] || (tools()[q.n] = init());
   const num = (x) => x.toLocaleString("ca-ES", { maximumFractionDigits: 1 });
 
   const stepper = (label, value, key) => `
@@ -327,6 +333,51 @@
       </div>`;
   }
 
+  // Proves per rondes: cur = ronda actual, pick = foto triada a cada ronda, m = ok, ko o null a cada ronda
+  function roundsTool(q, rounds, inner) {
+    const t = tool(q, () => ({ cur: 0, pick: rounds.map(() => null), m: rounds.map(() => null) }));
+    const ok = t.m.filter((x) => x === "ok").length;
+    const ko = t.m.filter((x) => x === "ko").length;
+    const r = rounds[t.cur];
+    return `
+      <div class="rounds__head mono"><span>${esc(fill(TT.round, { x: t.cur + 1, n: rounds.length }))}</span><span>${esc(r.part || "")}</span></div>
+      <div class="rounds__dots">
+        ${rounds.map((_, k) => `<button class="rdot rdot--${t.m[k] || "p"}${k === t.cur ? " rdot--cur" : ""} mono" data-act="rdGo" data-i="${k}">${k + 1}</button>`).join("")}
+      </div>
+      ${inner(r, t)}
+      ${judges() ? `<div class="qbtns rounds__marks">
+        <button class="btn btn--ok" data-act="rdOk">${esc(TT.hit)}</button>
+        <button class="btn btn--ko" data-act="rdKo">${esc(TT.miss)}</button>
+      </div>` : ""}
+      <p class="goal mono${ok >= q.tool.need ? " goal--ok" : ""}">${ok >= q.tool.need ? ICONS.check : ""}<span>${esc(fill(TT.tally, { ok, ko, need: q.tool.need, n: rounds.length }))}</span></p>`;
+  }
+
+  // La resposta només surt als mòbils que validen, i només si es demana
+  const keyView = (text) => !judges() ? "" : ui.answer
+    ? `<p class="qcard__a">${esc(text)}</p>`
+    : `<button class="btn btn--small" data-act="qShow">${esc(TT.showAnswer)}</button>`;
+
+  function photosTool(q) {
+    return roundsTool(q, D.photoRounds, (r, t) => `
+      <p class="rounds__hint">${esc(TT.pickHint)}</p>
+      <div class="photos">
+        ${r.photos.map((src, k) => `
+          <button class="photo${t.pick[t.cur] === k ? " photo--on" : ""}" data-act="phPick" data-i="${k}" aria-pressed="${t.pick[t.cur] === k}">
+            <img src="${esc(src)}" alt="${esc(fill(TT.photoAlt, { n: k + 1 }))}">
+            <span class="photo__n mono">${k + 1}</span>
+          </button>`).join("")}
+      </div>
+      ${r.answer === null ? "" : `<div class="rounds__key">${keyView(fill(TT.key, { n: r.answer + 1 }))}</div>`}`);
+  }
+
+  function quizTool(q) {
+    return roundsTool(q, D.nestorQuiz, (r) => `
+      <div class="qcard">
+        <p class="qcard__q">${esc(r.q)}</p>
+        ${keyView(r.a)}
+      </div>`);
+  }
+
   // Rosco: s = estat de cada lletra (p pendent, ok, ko), cur = lletra actual, time = segons que queden
   const roscoFresh = (q) => () => ({ s: D.rosco.map(() => "p"), cur: 0, time: q.tool.seconds, run: false });
   const mmss = (sec) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
@@ -348,6 +399,7 @@
   function startTimer(t, n) {
     stopTimer();
     t.run = true;
+    const live = !ui.preview;
     let last = Date.now();
     timer = setInterval(() => {
       const now = Date.now();
@@ -356,8 +408,10 @@
       last += passed * 1000;
       t.time = Math.max(0, t.time - passed);
       if (t.time === 0) { t.run = false; stopTimer(); }
-      save();
-      if (t.time % 5 === 0 || t.time === 0) pushTool(n);
+      if (live) {
+        save();
+        if (t.time % 5 === 0 || t.time === 0) pushTool(n);
+      }
       const el = $("#rosco-time");
       if (t.time === 0) refreshTool();
       else if (el) el.textContent = mmss(t.time);
@@ -411,14 +465,14 @@
       </div>`;
   }
 
-  const TOOLS = { score: scoreTool, counter: counterTool, hits: hitsTool, vote: voteTool, cards: cardsTool, questions: questionsTool, rosco: roscoTool };
+  const TOOLS = { score: scoreTool, counter: counterTool, hits: hitsTool, vote: voteTool, cards: cardsTool, questions: questionsTool, rosco: roscoTool, photos: photosTool, quiz: quizTool };
   const toolView = (q) => (TOOLS[q.tool.type] ? TOOLS[q.tool.type](q) : "");
 
   function refreshTool() {
-    save();
+    if (!ui.preview) save();
     const q = curQuota();
     if (!q) return;
-    pushTool(q.n);
+    if (!ui.preview) pushTool(q.n);
     const el = $(".tool");
     if (el) el.innerHTML = toolView(q);
   }
@@ -426,7 +480,7 @@
   const toolActions = {
     step(el) {
       const q = curQuota();
-      const t = state.tools[q.n];
+      const t = tools()[q.n];
       const k = el.dataset.k;
       const d = Number(el.dataset.d);
       if (q.tool.type === "hits" && d > 0 && t.a + t.b >= q.tool.total) return;
@@ -434,47 +488,96 @@
       refreshTool();
     },
     card(el) {
-      const t = state.tools[curQuota().n];
+      const t = tools()[curQuota().n];
       const i = Number(el.dataset.i);
       t.c[i] = t.c[i] === 1 ? 2 : 1; // 1r toc obre, 2n marca, 3r desmarca
       refreshTool();
     },
     qShow() { ui.answer = true; refreshTool(); },
-    qOk() { const t = state.tools[curQuota().n]; t.ok = Math.min(3, t.ok + 1); nextQuestion(t); refreshTool(); },
-    qKo() { const t = state.tools[curQuota().n]; t.ok = 0; t.ko += 1; nextQuestion(t); refreshTool(); },
-    qNext() { nextQuestion(state.tools[curQuota().n]); refreshTool(); },
+    qOk() { const t = tools()[curQuota().n]; t.ok = Math.min(3, t.ok + 1); nextQuestion(t); refreshTool(); },
+    qKo() { const t = tools()[curQuota().n]; t.ok = 0; t.ko += 1; nextQuestion(t); refreshTool(); },
+    qNext() { nextQuestion(tools()[curQuota().n]); refreshTool(); },
+    rdGo(el) { tools()[curQuota().n].cur = Number(el.dataset.i); ui.answer = false; refreshTool(); },
+    rdOk() { roundMark("ok"); },
+    rdKo() { roundMark("ko"); },
+    phPick(el) {
+      const t = tools()[curQuota().n];
+      const k = Number(el.dataset.i);
+      t.pick[t.cur] = t.pick[t.cur] === k ? null : k;
+      refreshTool();
+    },
     rHit() { roscoMark("ok"); },
     rMiss() { roscoMark("ko"); },
     rPass() {
-      const t = state.tools[curQuota().n];
+      const t = tools()[curQuota().n];
       const j = nextPending(t, t.cur);
       if (j >= 0) t.cur = j;
       ui.roscoAnswer = false;
       refreshTool();
     },
     rRun() {
-      const t = state.tools[curQuota().n];
+      const t = tools()[curQuota().n];
+      if (ui.preview && timer && !t.run) return; // el rellotge del joc de veritat no s'atura per un assaig
       if (t.run) { t.run = false; stopTimer(); } else startTimer(t, curQuota().n);
       refreshTool();
     },
-    rPlus() { state.tools[curQuota().n].time += 30; refreshTool(); },
+    rPlus() { tools()[curQuota().n].time += 30; refreshTool(); },
     rAnswer() { ui.roscoAnswer = !ui.roscoAnswer; refreshTool(); },
     rReset() {
       const q = curQuota();
-      stopTimer();
-      state.tools[q.n] = roscoFresh(q)();
+      if (tools()[q.n].run || !ui.preview) stopTimer();
+      tools()[q.n] = roscoFresh(q)();
       ui.roscoAnswer = false;
       refreshTool();
     },
   };
 
+  // Marca la ronda i passa a la següent que quedi per fer
+  function roundMark(v) {
+    if (!judges()) return;
+    const t = tools()[curQuota().n];
+    t.m[t.cur] = v;
+    for (let k = 1; k < t.m.length; k++) {
+      const j = (t.cur + k) % t.m.length;
+      if (!t.m[j]) { t.cur = j; break; }
+    }
+    ui.answer = false;
+    refreshTool();
+  }
+
   function roscoMark(v) {
-    const t = state.tools[curQuota().n];
+    const t = tools()[curQuota().n];
     t.s[t.cur] = v;
     const j = nextPending(t, t.cur);
     if (j >= 0) t.cur = j;
     ui.roscoAnswer = false;
     refreshTool();
+  }
+
+  // ---------- Primera pantalla: de qui és aquest mòbil
+  function gateView() {
+    const RL = T.roles;
+    return `
+      <section class="gate">
+        <h1 class="intro__title">${esc(RL.gateTitle)}</h1>
+        ${ui.gatePin
+          ? `<div class="card">
+              <h2 class="section-title">${esc(RL.orgTitle)}</h2>
+              <label class="pinfield">
+                <span class="label">${esc(RL.pinLabel)}</span>
+                <input id="pin" class="mono" type="password" inputmode="numeric" autocomplete="off" maxlength="12">
+              </label>
+              ${ui.pinWrong ? `<p class="goal goal--ko">${ICONS.alert}<span>${esc(RL.pinWrong)}</span></p>` : ""}
+              <div class="actions">
+                <button class="btn btn--primary" data-act="orgOn">${esc(RL.pinBtn)}</button>
+                <button class="btn" data-act="gateBack">${esc(RL.back)}</button>
+              </div>
+            </div>`
+          : `<div class="actions">
+              <button class="btn btn--primary" data-act="asClaudia">${esc(RL.claudiaBtn)}</button>
+              <button class="btn" data-act="asOrg">${esc(RL.orgBtn)}</button>
+            </div>`}
+      </section>`;
   }
 
   // ---------- Pantalles de la ruta
@@ -506,15 +609,15 @@
       <article class="card">
         ${stopHead(s)}
         ${choiceBar(s)}
-        <p class="addr">${ICONS.pin}<span>${esc(s.address)}</span></p>
+        ${s.address ? `<p class="addr">${ICONS.pin}<span>${esc(s.address)}</span></p>` : ""}
         <span class="tag${s.quota && !hidden(quota(s.quota)) ? " tag--quota" : ""}">${esc(tagFor(s))}</span>
-        <div class="howto">
+        ${s.howto ? `<div class="howto">
           <h3 class="label">${ICONS[s.mode]}${esc(T.go.howto)}</h3>
           <p>${esc(s.howto)}</p>
-        </div>
+        </div>` : ""}
         ${s.note ? `<div class="note"><h3 class="label">${esc(T.go.note)}</h3><p>${esc(s.note)}</p></div>` : ""}
         <div class="actions">
-          <a class="btn" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">${ICONS[s.mode]}${esc(T.go.openMaps)}</a>
+          ${s.address ? `<a class="btn" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">${ICONS[s.mode]}${esc(T.go.openMaps)}</a>` : ""}
           ${leads() ? `<button class="btn btn--primary" data-act="arrived">${esc(T.go.arrived)}</button>` : following()}
         </div>
       </article>`;
@@ -534,13 +637,15 @@
       </article>`;
   }
 
+  const withText = (q) => q.with || fill(T.test.with, { owner: q.owner });
+
   function testView(s) {
     const q = quota(s.quota);
     return `
       <article class="card">
         <div class="kicker mono"><span>${esc(fill(T.test.quota, { n: q.n }))}</span><span>${esc(s.name)}</span></div>
         <h2 class="test-title">${esc(q.title)}</h2>
-        <p class="with">${esc(fill(T.test.with, { owner: q.owner }))}</p>
+        <p class="with">${esc(withText(q))}</p>
         <ol class="rules">${q.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ol>
         <p class="cond">${ICONS.check}<span><b>${esc(T.test.payBtn)}:</b> ${esc(q.pass)}</span></p>
         <div class="tool" data-tool="${q.n}">${toolView(q)}</div>
@@ -633,6 +738,71 @@
       case "paid": return state.paid[s.quota] ? paidView(s) : testView(s);
       default: return goView(s);
     }
+  }
+
+  // ---------- Proves per parada (només organitzadors)
+  const ALL_DAYS = ["fri", "sat", "sun"];
+
+  function testsList() {
+    const TS = T.tests;
+    const days = ALL_DAYS.map((d) => `
+      <h3 class="label">${esc(T.days[d])}</h3>
+      <ul class="testlist">
+        ${STOPS.map((s, i) => ({ s, i })).filter((x) => x.s.day === d).map(({ s, i }) => {
+          const q = s.quota && quota(s.quota);
+          return `
+          <li><button class="testrow" data-act="openStop" data-i="${i}">
+            <span class="mono testrow__time">${s.n} · ${esc(s.time)}</span>
+            <strong>${esc(s.name)}</strong>
+            ${q
+              ? `<span class="testrow__q">${state.paid[q.n] ? ICONS.check : ""}<span class="tag tag--quota">${esc(fill(T.go.tagQuota, { n: q.n, owner: q.owner }))}</span> ${esc(q.title)}</span>`
+              : `<span class="muted">${esc(TS.noTest)}</span>`}
+          </button></li>`;
+        }).join("")}
+      </ul>`).join("");
+    return `
+      <h1 class="page-title">${esc(TS.title)}</h1>
+      <p class="muted tests-intro">${esc(TS.intro)}</p>
+      <div class="card">${days}</div>`;
+  }
+
+  function stopDetail(i) {
+    const TS = T.tests;
+    const s = pick(STOPS[i]);
+    const q = s.quota && quota(s.quota);
+    return `
+      <button class="btn btn--small tests-back" data-act="closeStop">${esc(TS.back)}</button>
+      <article class="card">
+        ${stopHead(s)}
+        ${s.address ? `<p class="addr">${ICONS.pin}<span>${esc(s.address)}</span></p>` : ""}
+        ${s.note ? `<div class="note"><h3 class="label">${esc(T.go.note)}</h3><p>${esc(s.note)}</p></div>` : ""}
+        <details class="readaloud">
+          <summary class="label">${esc(TS.read)}</summary>
+          <div class="story">${s.story.map((p) => `<p>${esc(p)}</p>`).join("")}</div>
+        </details>
+      </article>
+      ${!q ? "" : `
+      <article class="card">
+        <div class="kicker mono"><span>${esc(fill(T.test.quota, { n: q.n }))}</span></div>
+        <h2 class="test-title">${esc(q.title)}</h2>
+        <p class="with">${esc(withText(q))}</p>
+        <ol class="rules">${q.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ol>
+        <p class="cond">${ICONS.check}<span><b>${esc(T.test.payBtn)}:</b> ${esc(q.pass)}</span></p>
+        <p class="cond cond--ko">${ICONS.alert}<span><b>${esc(TS.reject)}:</b> ${esc(q.reject)}</span></p>
+        <p class="practice mono">${esc(TS.practice)}</p>
+        <div class="tool" data-tool="${q.n}">${toolView(q)}</div>
+      </article>`}`;
+  }
+
+  const testsView = () => (ui.preview ? stopDetail(ui.preview.i) : testsList());
+
+  function closePreview() {
+    if (!ui.preview) return;
+    if (Object.values(ui.previewTools).some((t) => t && t.run)) stopTimer();
+    ui.preview = null;
+    ui.previewTools = {};
+    ui.answer = false;
+    ui.roscoAnswer = false;
   }
 
   // ---------- Mapa
@@ -758,7 +928,8 @@
   }
 
   function mapView() {
-    const day = ui.mapDay || (state.started ? STOPS[state.idx].day : "sat");
+    const curDay = STOPS[state.idx].day;
+    const day = ui.mapDay || (state.started && DAYS.includes(curDay) ? curDay : "sat");
     const list = STOPS.map((s, i) => ({ s: pick(s), i })).filter((x) => x.s.day === day);
     ui.mapList = list;
     const rows = list.map(({ s, i }) => {
@@ -834,7 +1005,7 @@
         <td>${QUOTAS.filter((q) => q.owner === o).map((q) => `
           <span class="ownq${state.paid[q.n] ? " ownq--paid" : ""}">${state.paid[q.n] ? ICONS.check : ""}<span class="mono">${q.n}</span> ${esc(q.title)}</span>`).join("")}</td>
       </tr>`).join("");
-    const jump = DAYS.map((d) => `
+    const jump = ALL_DAYS.map((d) => `
       <h3 class="label">${esc(T.days[d])}</h3>
       <ul class="jumplist">
         ${STOPS.map((s, i) => ({ s, i })).filter((x) => x.s.day === d).map(({ s, i }) => `
@@ -859,13 +1030,7 @@
         <h2 class="section-title">${esc(RL.orgTitle)}</h2>
         ${isOrg()
           ? `<p>${esc(RL.orgOn)}</p><button class="btn" data-act="orgOff">${esc(RL.orgOff)}</button>`
-          : `<p class="muted">${esc(RL.orgText)}</p>
-            <label class="pinfield">
-              <span class="label">${esc(RL.pinLabel)}</span>
-              <input id="pin" class="mono" type="password" inputmode="numeric" autocomplete="off" maxlength="12">
-            </label>
-            ${ui.pinWrong ? `<p class="goal goal--ko">${ICONS.alert}<span>${esc(RL.pinWrong)}</span></p>` : ""}
-            <button class="btn btn--primary" data-act="orgOn">${esc(RL.pinBtn)}</button>`}
+          : `<p>${esc(RL.claudiaOn)}</p><button class="btn" data-act="orgOff">${esc(RL.change)}</button>`}
       </div>`;
     return `
       ${orgCard}
@@ -883,23 +1048,35 @@
   // ---------- Vistes
   const views = {
     route: routeView,
+    tests: testsView,
     map: mapView,
     passport: passportView,
     menu: menuView,
   };
 
   function renderTabs() {
+    $("#tabbar").hidden = needsRole();
     $("#tabbar").innerHTML = Object.keys(views)
+      .filter((k) => k !== "tests" || isOrg())
       .map((k) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${k === tab}">${ICONS[k]}<span>${esc(T.tabs[k])}</span></button>`)
       .join("");
   }
 
   function render() {
+    if (tab === "tests" && !isOrg()) { closePreview(); tab = "route"; }
+    // Si arriben canvis del servidor mentre s'escriu el PIN, no s'ha de perdre
+    const pinEl = $("#pin");
+    const pinValue = pinEl && pinEl.value;
+    const pinFocus = pinEl && document.activeElement === pinEl;
+    const gate = needsRole();
     renderTopbar();
     renderTabs();
     unmountMap();
-    $("#view").innerHTML = views[tab]();
-    if (tab === "map") mountMap();
+    $("#view").innerHTML = gate ? gateView() : views[tab]();
+    const pinNew = $("#pin");
+    if (pinNew && pinEl) pinNew.value = pinValue;
+    if (pinNew && pinFocus) pinNew.focus();
+    if (!gate && tab === "map") mountMap();
   }
 
   // ---------- Accions
@@ -919,7 +1096,7 @@
     const n = STOPS[state.idx].quota;
     const { data, error } = await sync.db.rpc("np_verdict", { pin: role.pin, n, ok });
     if (error) { setOnline(false); return false; }
-    if (data === false) { role = {}; saveRole(); ui.pinWrong = true; render(); return false; }
+    if (data === false) { role = {}; saveRole(); ui.pinWrong = true; ui.gatePin = true; render(); return false; }
     return true;
   }
 
@@ -960,10 +1137,23 @@
       const { data, error } = await sync.db.rpc("np_check_pin", { pin });
       if (error) { setOnline(false); return; }
       ui.pinWrong = !data;
-      if (data) { role = { pin }; saveRole(); }
+      if (data) { role = { pin }; saveRole(); ui.gatePin = false; tab = "route"; }
       render();
+      window.scrollTo(0, 0);
     },
-    orgOff() { role = {}; saveRole(); render(); },
+    orgOff() { role = {}; saveRole(); ui.gatePin = false; ui.pinWrong = false; tab = "route"; render(); window.scrollTo(0, 0); },
+    asClaudia() { role = { mode: "claudia" }; saveRole(); ui.pinWrong = false; tab = "route"; render(); },
+    asOrg() { ui.gatePin = true; ui.pinWrong = false; render(); $("#pin").focus(); },
+    gateBack() { ui.gatePin = false; ui.pinWrong = false; render(); },
+    openStop(el) {
+      ui.preview = { i: Number(el.dataset.i) };
+      ui.previewTools = {};
+      ui.answer = false;
+      ui.roscoAnswer = false;
+      render();
+      window.scrollTo(0, 0);
+    },
+    closeStop() { closePreview(); render(); window.scrollTo(0, 0); },
     mapDay(el) { ui.mapDay = el.dataset.d; render(); },
     mapFocus(el) {
       const s = pick(STOPS[Number(el.dataset.i)]);
@@ -984,7 +1174,7 @@
       if (sync.on) {
         const { data, error } = await sync.db.rpc("np_reset", { pin: role.pin });
         if (error) { setOnline(false); return; }
-        if (data === false) { role = {}; saveRole(); ui.pinWrong = true; render(); return; }
+        if (data === false) { role = {}; saveRole(); ui.pinWrong = true; ui.gatePin = true; render(); return; }
       }
       stopTimer();
       state = fresh();
@@ -1000,6 +1190,7 @@
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-tab]");
     if (t) {
+      closePreview();
       tab = t.dataset.tab;
       ui.confirmReset = false;
       ui.pinWrong = false;
@@ -1014,10 +1205,14 @@
   document.addEventListener("change", (e) => {
     const sel = e.target.closest("[data-vote]");
     if (!sel) return;
-    const t = state.tools[curQuota().n];
+    const t = tools()[curQuota().n];
     if (sel.value) t.v[sel.dataset.vote] = Number(sel.value);
     else delete t.v[sel.dataset.vote];
     refreshTool();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.id === "pin") actions.orgOn();
   });
 
   setInterval(renderTopbar, 30000);
@@ -1045,6 +1240,6 @@
     });
   }
 
+  startSync(); // abans del primer render: sync.on decideix si cal la pantalla de mode
   render();
-  startSync();
 })();

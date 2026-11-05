@@ -1,7 +1,7 @@
 // Néstor Premium · service worker
 // Guarda l'app a la memòria cau perquè funcioni sense connexió. Google Maps sí que necessita dades.
 // Si canvies algun fitxer, puja el número de VERSION perquè els mòbils agafin la versió nova.
-const VERSION = "np-v12";
+const VERSION = "np-v13";
 const SHELL = [
   "./",
   "index.html",
@@ -13,6 +13,12 @@ const SHELL = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/apple-touch-icon.png",
+  "fotos/ulls-1.jpg", "fotos/ulls-2.jpg", "fotos/ulls-3.jpg", "fotos/ulls-4.jpg", "fotos/ulls-5.jpg",
+  "fotos/nas-1.jpg", "fotos/nas-2.jpg", "fotos/nas-3.jpg", "fotos/nas-4.jpg", "fotos/nas-5.jpg",
+  "fotos/llavis-1.jpg", "fotos/llavis-2.jpg", "fotos/llavis-3.jpg", "fotos/llavis-4.jpg", "fotos/llavis-5.jpg",
+  "fotos/melic-1.jpg", "fotos/melic-2.jpg", "fotos/melic-3.jpg", "fotos/melic-4.jpg", "fotos/melic-5.jpg",
+  "fotos/mans-1.jpg", "fotos/mans-2.jpg", "fotos/mans-3.jpg", "fotos/mans-4.jpg", "fotos/mans-5.jpg",
+  "fotos/orelles-1.jpg", "fotos/orelles-2.jpg", "fotos/orelles-3.jpg", "fotos/orelles-4.jpg", "fotos/orelles-5.jpg",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js",
