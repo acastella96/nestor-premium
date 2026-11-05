@@ -88,12 +88,12 @@ button { font: inherit; color: inherit; }
   background: var(--ink); color: var(--bg);
 }
 .badge--off { background: var(--ko); color: #fff; }
-.following, .waiting {
+.waiting {
   display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; margin: 0;
   padding: 10px 14px; border-radius: 12px; border: 1.5px dashed var(--line);
   font-size: 13px; font-weight: 600; color: var(--ink-soft); text-align: center;
 }
-.following svg, .waiting svg { width: 18px; height: 18px; flex: none; }
+.waiting svg { width: 18px; height: 18px; flex: none; }
 .waiting { margin-top: 20px; border-color: var(--primary); color: var(--primary); }
 .pinfield { display: block; margin: 12px 0; }
 .pinfield input {

@@ -42,7 +42,7 @@
 
   // ---------- Sincronització (Supabase) i rols
   // Sense config.js, el joc va en un sol mòbil com sempre. Amb config.js, tots els mòbils comparteixen l'estat:
-  // el de la Clàudia avança la ruta i només els organitzadors (amb PIN) poden posar el veredicte.
+  // qualsevol mòbil avança la ruta i només els organitzadors (amb PIN) poden posar el veredicte.
   const CFG = window.NP_CONFIG || {};
   const ROLE_KEY = "nestor-premium-role";
   let role = (() => { try { return JSON.parse(localStorage.getItem(ROLE_KEY)) || {}; } catch (e) { return {}; } })();
@@ -50,7 +50,6 @@
   const PROGRESS = ["started", "idx", "stage", "done", "choice"];
   const sync = { on: false, db: null, online: true, busy: false, progress: false, tools: new Set() };
   const isOrg = () => sync.on && !!role.pin;
-  const leads = () => !isOrg(); // qui avança la ruta: la Clàudia (o tothom si no hi ha sincronització)
   const judges = () => !sync.on || isOrg(); // qui pot posar "Quota pagada" i "Pagament rebutjat"
   // Al mòbil de la Clàudia, les proves pendents són sorpresa: ni quina és ni amb qui fins que hi arriba
   const surprise = () => sync.on && !isOrg();
@@ -581,8 +580,6 @@
   }
 
   // ---------- Pantalles de la ruta
-  const following = () => `<p class="following mono">${ICONS.route}<span>${esc(T.roles.following)}</span></p>`;
-
   function introView() {
     const I = T.intro;
     return `
@@ -597,9 +594,7 @@
           <h3 class="label">${esc(I.termsTitle)}</h3>
           <ul>${I.terms.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
         </div>
-        ${leads()
-          ? `<button class="btn btn--primary" data-act="start">${esc(I.button)}</button>`
-          : `<p class="following mono">${ICONS.route}<span>${esc(T.roles.notStarted)}</span></p>`}
+        <button class="btn btn--primary" data-act="start">${esc(I.button)}</button>
       </section>`;
   }
 
@@ -618,7 +613,7 @@
         ${s.note ? `<div class="note"><h3 class="label">${esc(T.go.note)}</h3><p>${esc(s.note)}</p></div>` : ""}
         <div class="actions">
           ${s.address ? `<a class="btn" href="${esc(mapsUrl(s))}" target="_blank" rel="noopener">${ICONS[s.mode]}${esc(T.go.openMaps)}</a>` : ""}
-          ${leads() ? `<button class="btn btn--primary" data-act="arrived">${esc(T.go.arrived)}</button>` : following()}
+          <button class="btn btn--primary" data-act="arrived">${esc(T.go.arrived)}</button>
         </div>
       </article>`;
   }
@@ -633,7 +628,7 @@
         ${stopHead(s)}
         <span class="tag tag--read">${esc(T.story.readAloud)}</span>
         <div class="story">${s.story.map((p) => `<p>${esc(p)}</p>`).join("")}</div>
-        <div class="actions">${leads() ? btn : following()}</div>
+        <div class="actions">${btn}</div>
       </article>`;
   }
 
@@ -666,7 +661,7 @@
         <h2>${esc(T.rejected.title)}</h2>
         <p class="ko-sub mono">${esc(T.rejected.text)}</p>
         <p class="ko-text">${esc(q.reject)}</p>
-        <div class="actions">${leads() ? `<button class="btn btn--primary" data-act="retry">${esc(T.rejected.button)}</button>` : following()}</div>
+        <div class="actions"><button class="btn btn--primary" data-act="retry">${esc(T.rejected.button)}</button></div>
       </article>`;
   }
 
@@ -683,7 +678,7 @@
         ${stamp(q.n, p.at, justPaid ? "stamp--drop" : "")}
         <h2>${esc(fill(T.paid.title, { test: q.title }))}</h2>
         <p class="mono left">${esc(fill(T.paid.left, { x: left }))}</p>
-        <div class="actions">${leads() ? btn : following()}</div>
+        <div class="actions">${btn}</div>
       </article>`;
     justPaid = false;
     return html;

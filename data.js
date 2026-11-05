@@ -1088,8 +1088,6 @@ window.DATA = {
       "orgOn": "Aquest mòbil és d'un organitzador.",
       "orgOff": "Sortir del mode organitzador",
       "badge": "Organitzador",
-      "following": "Seguint la Clàudia",
-      "notStarted": "La Clàudia encara no ha començat el joc.",
       "waiting": "Esperant el veredicte dels organitzadors.",
       "offline": "Sense connexió",
       "gateTitle": "Com entres?",
