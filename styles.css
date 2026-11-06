@@ -350,6 +350,8 @@ button { font: inherit; color: inherit; }
 .rounds__head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); }
 .rounds__dots { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; margin: 10px 0 12px; }
 .rdot { min-height: 44px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); font-size: 14px; font-weight: 700; cursor: pointer; }
+.rdot:disabled { cursor: default; }
+.rdot--p:disabled { color: var(--ink); }
 .rdot--ok { background: var(--ok); border-color: var(--ok); color: #fff; }
 .rdot--ko { background: var(--ko); border-color: var(--ko); color: #fff; }
 .rdot--cur { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--primary); }

@@ -339,10 +339,12 @@
     const ok = t.m.filter((x) => x === "ok").length;
     const ko = t.m.filter((x) => x === "ko").length;
     const r = rounds[t.cur];
+    // A les preguntes, només els organitzadors poden moure's entre rondes
+    const lockDots = q.tool.type === "quiz" && !judges();
     return `
       <div class="rounds__head mono"><span>${esc(fill(TT.round, { x: t.cur + 1, n: rounds.length }))}</span><span>${esc(r.part || "")}</span></div>
       <div class="rounds__dots">
-        ${rounds.map((_, k) => `<button class="rdot rdot--${t.m[k] || "p"}${k === t.cur ? " rdot--cur" : ""} mono" data-act="rdGo" data-i="${k}">${k + 1}</button>`).join("")}
+        ${rounds.map((_, k) => `<button class="rdot rdot--${t.m[k] || "p"}${k === t.cur ? " rdot--cur" : ""} mono" data-act="rdGo" data-i="${k}"${lockDots ? " disabled" : ""}>${k + 1}</button>`).join("")}
       </div>
       ${inner(r, t)}
       ${judges() && !autoMark ? `<div class="qbtns rounds__marks">
@@ -1123,10 +1125,10 @@
       setStage("rejected", undefined, !sync.on);
     },
     retry() {
-      // A les fotos, les rondes fallades es tornen a jugar; les encertades es queden
+      // A les proves per rondes, les fallades es tornen a jugar; les encertades es queden
       const q = quota(STOPS[state.idx].quota);
       const t = state.tools[q.n];
-      if (q.tool.type === "photos" && t) {
+      if ((q.tool.type === "photos" || q.tool.type === "quiz") && t) {
         t.m.forEach((v, k) => { if (v === "ko") { t.m[k] = null; t.pick[k] = null; } });
         const first = t.m.indexOf(null);
         if (first >= 0) t.cur = first;
