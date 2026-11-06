@@ -1,7 +1,7 @@
 // Néstor Premium · service worker
 // Guarda l'app a la memòria cau perquè funcioni sense connexió. Google Maps sí que necessita dades.
 // Si canvies algun fitxer, puja el número de VERSION perquè els mòbils agafin la versió nova.
-const VERSION = "np-v14";
+const VERSION = "np-v15";
 const SHELL = [
   "./",
   "index.html",

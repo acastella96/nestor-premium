@@ -1044,7 +1044,9 @@ window.DATA = {
       "round": "Ronda {x} de {n}",
       "pickHint": "Toca la foto que creus que és la del Néstor.",
       "photoAlt": "Foto {n}",
-      "key": "És la foto {n}",
+      "photoHit": "És la del Néstor! Glop per a la Paula.",
+      "photoMiss": "Aquesta no és la del Néstor. Glop per a la Clàudia.",
+      "nextRound": "Següent ronda",
       "hit": "Encert",
       "miss": "Error",
       "tally": "{ok} encerts, {ko} errors. Calen {need} de {n}."
@@ -1117,7 +1119,7 @@ window.DATA = {
         "fotos/ulls-4.jpg",
         "fotos/ulls-5.jpg"
       ],
-      "answer": null
+      "answer": 1
     },
     {
       "part": "Nas",
@@ -1128,7 +1130,7 @@ window.DATA = {
         "fotos/nas-4.jpg",
         "fotos/nas-5.jpg"
       ],
-      "answer": null
+      "answer": 0
     },
     {
       "part": "Llavis",
@@ -1139,7 +1141,7 @@ window.DATA = {
         "fotos/llavis-4.jpg",
         "fotos/llavis-5.jpg"
       ],
-      "answer": null
+      "answer": 3
     },
     {
       "part": "Melic",
@@ -1150,7 +1152,7 @@ window.DATA = {
         "fotos/melic-4.jpg",
         "fotos/melic-5.jpg"
       ],
-      "answer": null
+      "answer": 0
     },
     {
       "part": "Mans",
@@ -1161,7 +1163,7 @@ window.DATA = {
         "fotos/mans-4.jpg",
         "fotos/mans-5.jpg"
       ],
-      "answer": null
+      "answer": 3
     },
     {
       "part": "Orelles",
@@ -1172,7 +1174,7 @@ window.DATA = {
         "fotos/orelles-4.jpg",
         "fotos/orelles-5.jpg"
       ],
-      "answer": null
+      "answer": 2
     }
   ],
   "nestorQuiz": [

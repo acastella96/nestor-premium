@@ -333,7 +333,8 @@
   }
 
   // Proves per rondes: cur = ronda actual, pick = foto triada a cada ronda, m = ok, ko o null a cada ronda
-  function roundsTool(q, rounds, inner) {
+  // autoMark: l'app corregeix sola i no calen els botons d'encert i error
+  function roundsTool(q, rounds, inner, autoMark) {
     const t = tool(q, () => ({ cur: 0, pick: rounds.map(() => null), m: rounds.map(() => null) }));
     const ok = t.m.filter((x) => x === "ok").length;
     const ko = t.m.filter((x) => x === "ko").length;
@@ -344,7 +345,7 @@
         ${rounds.map((_, k) => `<button class="rdot rdot--${t.m[k] || "p"}${k === t.cur ? " rdot--cur" : ""} mono" data-act="rdGo" data-i="${k}">${k + 1}</button>`).join("")}
       </div>
       ${inner(r, t)}
-      ${judges() ? `<div class="qbtns rounds__marks">
+      ${judges() && !autoMark ? `<div class="qbtns rounds__marks">
         <button class="btn btn--ok" data-act="rdOk">${esc(TT.hit)}</button>
         <button class="btn btn--ko" data-act="rdKo">${esc(TT.miss)}</button>
       </div>` : ""}
@@ -357,16 +358,22 @@
     : `<button class="btn btn--small" data-act="qShow">${esc(TT.showAnswer)}</button>`;
 
   function photosTool(q) {
-    return roundsTool(q, D.photoRounds, (r, t) => `
-      <p class="rounds__hint">${esc(TT.pickHint)}</p>
-      <div class="photos">
+    // Si falla no s'ensenya quina era la bona, perquè les rondes fallades es tornen a fer
+    return roundsTool(q, D.photoRounds, (r, t) => {
+      const res = t.m[t.cur];
+      return `
+      ${res ? "" : `<p class="rounds__hint">${esc(TT.pickHint)}</p>`}
+      <div class="photos${res ? " photos--done" : ""}">
         ${r.photos.map((src, k) => `
-          <button class="photo${t.pick[t.cur] === k ? " photo--on" : ""}" data-act="phPick" data-i="${k}" aria-pressed="${t.pick[t.cur] === k}">
+          <button class="photo${res && t.pick[t.cur] === k ? ` photo--${res}` : ""}" data-act="phPick" data-i="${k}"${res ? " disabled" : ""}>
             <img src="${esc(src)}" alt="${esc(fill(TT.photoAlt, { n: k + 1 }))}">
             <span class="photo__n mono">${k + 1}</span>
+            ${res && t.pick[t.cur] === k ? `<span class="photo__mark">${res === "ok" ? ICONS.check : ICONS.alert}</span>` : ""}
           </button>`).join("")}
       </div>
-      ${r.answer === null ? "" : `<div class="rounds__key">${keyView(fill(TT.key, { n: r.answer + 1 }))}</div>`}`);
+      ${res ? `<p class="goal mono goal--${res}">${res === "ok" ? ICONS.check : ICONS.alert}<span>${esc(res === "ok" ? TT.photoHit : TT.photoMiss)}</span></p>` : ""}
+      ${res && t.m.includes(null) ? `<div class="actions"><button class="btn btn--primary" data-act="rdNext">${esc(TT.nextRound)}</button></div>` : ""}`;
+    }, true);
   }
 
   function quizTool(q) {
@@ -501,10 +508,13 @@
     rdKo() { roundMark("ko"); },
     phPick(el) {
       const t = tools()[curQuota().n];
+      if (t.m[t.cur]) return; // cada ronda només admet una resposta
       const k = Number(el.dataset.i);
-      t.pick[t.cur] = t.pick[t.cur] === k ? null : k;
+      t.pick[t.cur] = k;
+      t.m[t.cur] = k === D.photoRounds[t.cur].answer ? "ok" : "ko";
       refreshTool();
     },
+    rdNext() { nextRound(tools()[curQuota().n]); refreshTool(); $(".tool").scrollIntoView(); },
     rHit() { roscoMark("ok"); },
     rMiss() { roscoMark("ko"); },
     rPass() {
@@ -531,15 +541,20 @@
     },
   };
 
-  // Marca la ronda i passa a la següent que quedi per fer
-  function roundMark(v) {
-    if (!judges()) return;
-    const t = tools()[curQuota().n];
-    t.m[t.cur] = v;
+  // Passa a la següent ronda que quedi per fer
+  function nextRound(t) {
     for (let k = 1; k < t.m.length; k++) {
       const j = (t.cur + k) % t.m.length;
       if (!t.m[j]) { t.cur = j; break; }
     }
+  }
+
+  // Marca la ronda i passa a la següent
+  function roundMark(v) {
+    if (!judges()) return;
+    const t = tools()[curQuota().n];
+    t.m[t.cur] = v;
+    nextRound(t);
     ui.answer = false;
     refreshTool();
   }
@@ -1107,7 +1122,18 @@
       if (sync.on && !(await verdict(false))) return;
       setStage("rejected", undefined, !sync.on);
     },
-    retry() { setStage("test"); },
+    retry() {
+      // A les fotos, les rondes fallades es tornen a jugar; les encertades es queden
+      const q = quota(STOPS[state.idx].quota);
+      const t = state.tools[q.n];
+      if (q.tool.type === "photos" && t) {
+        t.m.forEach((v, k) => { if (v === "ko") { t.m[k] = null; t.pick[k] = null; } });
+        const first = t.m.indexOf(null);
+        if (first >= 0) t.cur = first;
+        pushTool(q.n);
+      }
+      setStage("test");
+    },
     async pay() {
       if (!judges()) return;
       if (sync.on && !(await verdict(true))) return;

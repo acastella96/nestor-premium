@@ -354,7 +354,6 @@ button { font: inherit; color: inherit; }
 .rdot--ko { background: var(--ko); border-color: var(--ko); color: #fff; }
 .rdot--cur { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--primary); }
 .rounds__hint { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
-.rounds__key { margin-top: 12px; }
 .rounds__marks { margin-top: 14px; }
 .rounds__marks .btn:last-child { grid-column: auto; }
 .photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -363,12 +362,24 @@ button { font: inherit; color: inherit; }
   border: 3px solid transparent; border-radius: 12px; background: var(--bg); cursor: pointer;
 }
 .photo img { display: block; width: 100%; height: 100%; object-fit: contain; }
-.photo--on { border-color: var(--primary); }
+.photo:disabled { cursor: default; }
+.photos--done .photo:not(.photo--ok, .photo--ko) { opacity: 0.45; }
+.photo--ok { border-color: var(--ok); }
+.photo--ko { border-color: var(--ko); }
 .photo__n {
   position: absolute; top: 6px; left: 6px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
   font-size: 13px; font-weight: 700; background: var(--ink); color: var(--bg);
 }
-.photo--on .photo__n { background: var(--primary); color: var(--on-primary); }
+.photo--ok .photo__n { background: var(--ok); color: #fff; }
+.photo--ko .photo__n { background: var(--ko); color: #fff; }
+.photo__mark {
+  position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 64px; height: 64px; margin: -32px 0 0 -32px;
+  border-radius: 50%; color: #fff;
+}
+.photo__mark svg { width: 40px; height: 40px; }
+.photo--ok .photo__mark { background: var(--ok); }
+.photo--ko .photo__mark { background: var(--ko); }
+.tool { scroll-margin-top: 108px; }
 
 /* Proves per parada (organitzadors) */
 .tests-intro { margin: 0 0 12px; }
