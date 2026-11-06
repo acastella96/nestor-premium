@@ -186,19 +186,19 @@ window.DATA = {
       "n": 10,
       "day": "sat",
       "time": "14:00",
-      "name": "Chez Léon",
+      "name": "Bouillon Bruxelles",
       "kind": "Dinar",
       "quota": null,
-      "address": "Chez Léon, Rue des Bouchers 18, 1000 Bruxelles",
+      "address": "Bouillon Bruxelles, Rue des Dominicains 7, 1000 Bruxelles",
       "mode": "transit",
-      "lat": 50.8482,
-      "lng": 4.3542,
-      "title": "Chez Léon",
-      "howto": "Metro línia 1 o 5 des de Merode fins a Gare Centrale, i 5 minuts a peu fins a la Rue des Bouchers.",
-      "note": "Per a set persones, val la pena reservar.",
+      "lat": 50.8481,
+      "lng": 4.3544,
+      "title": "Bouillon Bruxelles",
+      "howto": "Metro línia 1 o 5 des de Merode fins a Gare Centrale, i 5 minuts a peu fins a la Rue des Dominicains.",
+      "note": "Tenim reserva a les 14:00.",
       "story": [
-        "Dinar. Chez Léon va començar el 1893 com una fregidora petita al carrer dels Carnissers i ara ocupa mitja illa de cases. Aquí es ve a fer musclos amb patates fregides, el plat de Brussel·les.",
-        "Ho tens fàcil: musclos a la marinera o al vi blanc, patates, i una cervesa belga per acompanyar. A la tarda hi haurà més gofres, així que deixa una mica de lloc."
+        "Dinar. El Bouillon Bruxelles és una brasseria a l'antiga, a tocar de la Rue des Bouchers, que fa cuina popular belga a bon preu.",
+        "Per començar, les croquetes de gamba, que aquí diuen que són les millors de Brussel·les. Després, musclos amb lambic i patates, carbonnade de vedella o vol-au-vent de pollastre. A la tarda hi haurà més gofres, així que deixa una mica de lloc."
       ]
     },
     {
